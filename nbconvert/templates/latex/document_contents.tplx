@@ -13,9 +13,9 @@
 
 % Display python error text as-is
 ((* block error *))
-    \begin{Verbatim}[commandchars=\\\{\}]
+\begin{Verbatim}[commandchars=\\\{\}]
 ((( super() )))
-    \end{Verbatim}
+\end{Verbatim}
 ((* endblock error *))
 ((* block traceback_line *))
     ((( line | indent | strip_ansi | escape_latex )))
@@ -23,9 +23,9 @@
 
 % Display stream ouput with coloring
 ((* block stream *))
-    \begin{Verbatim}[commandchars=\\\{\}]
+\begin{Verbatim}[commandchars=\\\{\}]
 ((( output.text | escape_latex | ansi2latex )))
-    \end{Verbatim}
+\end{Verbatim}
 ((* endblock stream *))
 
 % Display latex

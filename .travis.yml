@@ -22,6 +22,8 @@ addons:
     - texlive-generic-recommended # .. and more ...
     - latex-xcolor # ... and more latex packages
     - texlive-fonts-recommended # fonts...
+    - texlive-fonts-extra # fonts incl. sourcecodepro..
+    - lmodern
     - cm-super # more fonts
     - texlive-xetex # latex to pdf converter
     - inkscape # for svgs in pdf output

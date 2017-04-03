@@ -15,7 +15,7 @@
 %===============================================================================
 
 ((* block input scoped *))
-    \begin{Verbatim}[commandchars=\\\{\}]
+\begin{Verbatim}[commandchars=\\\{\}]
 ((( cell.source | highlight_code(strip_verbatim=True) | add_prompts )))
-    \end{Verbatim}
+\end{Verbatim}
 ((* endblock input *))
