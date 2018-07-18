@@ -146,6 +146,15 @@ class ExecutePreprocessor(Preprocessor):
         )
     ).tag(config=True)
 
+    save_on_error = Bool(False,
+        help=dedent(
+            """
+            If `False` (default), when a cell raises an error no output is saved.
+            If `True`, the output of the notebook will be saved when an error occors.
+            """
+        )
+    ).tag(config=True)
+
     extra_arguments = List(Unicode())
 
     kernel_name = Unicode('',
@@ -276,6 +285,12 @@ class ExecutePreprocessor(Preprocessor):
 
         try:
             nb, resources = super(ExecutePreprocessor, self).preprocess(nb, resources)
+        except CellExecutionError:
+            if self.save_on_error:
+                pass
+            else:
+                raise
+
         finally:
             self.kc.stop_channels()
             self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')

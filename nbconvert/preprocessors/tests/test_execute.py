@@ -211,6 +211,16 @@ class TestExecute(PreprocessorTestsBase):
             else:
                 assert u"# üñîçø∂é".encode('utf8', 'replace') in str(exc.value)
 
+    def test_save_on_error(self):
+        """
+        Check that conversion halts if ``allow_errors`` is False.
+        """
+        current_dir = os.path.dirname(__file__)
+        filename = os.path.join(current_dir, 'files', 'Skip Exceptions.ipynb')
+        res = self.build_resources()
+        res['metadata']['path'] = os.path.dirname(filename)
+        self.run_notebook(filename, dict(save_on_error=True), res)
+
     def test_force_raise_errors(self):
         """
         Check that conversion halts if the ``force_raise_errors`` traitlet on

@@ -72,6 +72,13 @@ nbconvert_flags.update({
          "(the default behaviour is to abort conversion). This flag "
          "is only relevant if '--execute' was specified, too.")
         ),
+    'save-on-error' : (
+        {'ExecutePreprocessor' : {'save_on_error' : True}},
+        ("Saves the notebook even if one cell throws "
+         "an error. The error message is shown in the cell output."
+         "(the default behaviour is to not save the notebook on an error). This flag "
+         "is only relevant if '--execute' was specified, too.")
+    ),
     'stdin' : (
         {'NbConvertApp' : {
             'from_stdin' : True,
