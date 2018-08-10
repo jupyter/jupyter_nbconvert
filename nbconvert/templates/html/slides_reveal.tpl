@@ -234,10 +234,10 @@ require(
 
         // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
         Reveal.initialize({
-            controls: true,
-            progress: true,
-            history: true,
-
+            controls: "{{resources.reveal.controls}}",
+            progress: "{{resources.reveal.progress}}",
+            slideNumber: "{{resources.reveal.slide_number}}",
+            history: "{{resources.reveal.history}}",
             transition: "{{resources.reveal.transition}}",
 
             // Optional libraries used to extend on reveal.js

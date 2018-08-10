@@ -77,12 +77,12 @@ class SlidesExporter(HTMLExporter):
 
     reveal_url_prefix = Unicode(
         help="""The URL prefix for reveal.js (version 3.x).
-        This defaults to the reveal CDN, but can be any url pointing to a copy 
-        of reveal.js. 
-        
-        For speaker notes to work, this must be a relative path to a local 
+        This defaults to the reveal CDN, but can be any url pointing to a copy
+        of reveal.js.
+
+        For speaker notes to work, this must be a relative path to a local
         copy of reveal.js: e.g., "reveal.js".
-        
+
         See the usage documentation
         (https://nbconvert.readthedocs.io/en/latest/usage.html#reveal-js-html-slideshow)
         for more details.
@@ -96,6 +96,24 @@ class SlidesExporter(HTMLExporter):
                  "SlidesExporter.reveal_url_prefix in config files.")
             return self.config.RevealHelpPreprocessor.url_prefix
         return 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0'
+
+    reveal_controls = Bool(True,
+        help="""
+        If True, show presentation control arrows
+        """
+    ).tag(config=True)
+
+    reveal_history = Bool(True,
+        help="""
+        If True, push each slide change to the browser history
+        """
+    ).tag(config=True)
+
+    reveal_progress = Bool(True,
+        help="""
+        If True, display a presentation progress bar about each slide
+        """
+    ).tag(config=True)
 
     reveal_theme = Unicode('simple',
         help="""
@@ -121,6 +139,12 @@ class SlidesExporter(HTMLExporter):
     reveal_scroll = Bool(False,
         help="""
         If True, enable scrolling within each slide
+        """
+    ).tag(config=True)
+
+    reveal_slide_number = Bool(False,
+        help="""
+        If True, show the current slide number on the slide
         """
     ).tag(config=True)
 
@@ -167,11 +191,16 @@ class SlidesExporter(HTMLExporter):
             resources['reveal'] = {}
         resources['reveal']['url_prefix'] = self.reveal_url_prefix
         resources['reveal']['theme'] = self.reveal_theme
-        resources['reveal']['transition'] = self.reveal_transition
         resources['reveal']['scroll'] = self.reveal_scroll
         resources['reveal']['require_js_url'] = self.require_js_url
         resources['reveal']['jquery_url'] = self.jquery_url
         resources['reveal']['font_awesome_url'] = self.font_awesome_url
+
+        resources['reveal']['controls'] = self.reveal_controls
+        resources['reveal']['progress'] = self.reveal_progress
+        resources['reveal']['slide_number'] = self.reveal_slide_number
+        resources['reveal']['transition'] = self.reveal_transition
+        resources['reveal']['history'] = self.reveal_history
 
         nb = prepare(nb)
 
