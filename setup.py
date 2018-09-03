@@ -237,7 +237,8 @@ if 'setuptools' in sys.modules:
             'rst=nbconvert.exporters:RSTExporter',
             'notebook=nbconvert.exporters:NotebookExporter',
             'asciidoc=nbconvert.exporters:ASCIIDocExporter',
-            'script=nbconvert.exporters:ScriptExporter'] 
+            'script=nbconvert.exporters:ScriptExporter',
+            'epub=nbconvert.exporters:EpubExporter'] 
     }
     setup_args.pop('scripts', None)
 
