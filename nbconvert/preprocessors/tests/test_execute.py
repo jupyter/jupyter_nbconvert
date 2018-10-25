@@ -122,8 +122,8 @@ class TestExecute(PreprocessorTestsBase):
     def test_run_notebooks(self):
         """Runs a series of test notebooks and compares them to their actual output"""
         input_files = glob.glob(os.path.join(current_dir, 'files', '*.ipynb'))
-        shared_opts = dict(kernel_name="python")
-        for filename in input_files:
+        shared_opts = dict(kernel_name="pyimport/kernel")
+        for filename in sorted(input_files):
             if os.path.basename(filename) == "Disable Stdin.ipynb":
                 continue
             elif os.path.basename(filename) == "Interrupt.ipynb":
@@ -136,10 +136,14 @@ class TestExecute(PreprocessorTestsBase):
             res['metadata']['path'] = os.path.dirname(filename)
             opts.update(shared_opts)
             input_nb, output_nb = self.run_notebook(filename, opts, res)
-            self.assert_notebooks_equal(input_nb, output_nb)
+            try:
+                self.assert_notebooks_equal(input_nb, output_nb)
+            except AssertionError:
+                print("Failed validating:", filename)
+                raise
 
     def test_populate_language_info(self):
-        preprocessor = self.build_preprocessor(opts=dict(kernel_name="python"))
+        preprocessor = self.build_preprocessor(opts=dict(kernel_name="python3"))
         nb = nbformat.v4.new_notebook()  # Certainly has no language_info.
         nb, _ = preprocessor.preprocess(nb, resources={})
         assert 'language_info' in nb.metadata
@@ -234,36 +238,6 @@ class TestExecute(PreprocessorTestsBase):
                 assert u"# üñîçø∂é" in str(exc.value)
             else:
                 assert u"# üñîçø∂é".encode('utf8', 'replace') in str(exc.value)
-
-    def test_custom_kernel_manager(self):
-        from .fake_kernelmanager import FakeCustomKernelManager
-
-        current_dir = os.path.dirname(__file__)
-
-        filename = os.path.join(current_dir, 'files', 'HelloWorld.ipynb')
-
-        with io.open(filename) as f:
-            input_nb = nbformat.read(f, 4)
-
-        preprocessor = self.build_preprocessor({
-            'kernel_manager_class': FakeCustomKernelManager
-        })
-
-        cleaned_input_nb = copy.deepcopy(input_nb)
-        for cell in cleaned_input_nb.cells:
-            if 'execution_count' in cell:
-                del cell['execution_count']
-            cell['outputs'] = []
-
-        # Override terminal size to standardise traceback format
-        with modified_env({'COLUMNS': '80', 'LINES': '24'}):
-            output_nb, _ = preprocessor(cleaned_input_nb,
-                                        self.build_resources())
-
-        expected = FakeCustomKernelManager.expected_methods.items()
-
-        for method, call_count in expected:
-            self.assertNotEqual(call_count, 0, '{} was called'.format(method))
 
     def test_execute_function(self):
         # Test the executenb() convenience API

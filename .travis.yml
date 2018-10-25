@@ -9,8 +9,6 @@ python:
     - "nightly"
     - 3.6
     - 3.5
-    - 3.4
-    - 2.7
 env:
   global:
     - PATH=$TRAVIS_BUILD_DIR/bin:$PATH

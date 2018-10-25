@@ -225,18 +225,18 @@ install_requires = setuptools_args['install_requires'] = [
     'testpath',
     'defusedxml',
 ]
-jupyter_client_req = 'jupyter_client>=4.2'
+jupyter_km_req = 'jupyter_kernel_mgmt>=0.2'
 
 extra_requirements = {
-    'test': ['pytest', 'pytest-cov', 'ipykernel', jupyter_client_req],
+    'test': ['pytest', 'pytest-cov', 'ipykernel', jupyter_km_req],
     'serve': ['tornado>=4.0'],
-    'execute': [jupyter_client_req],
+    'execute': [jupyter_km_req],
     'docs': ['sphinx>=1.5.1',
              'sphinx_rtd_theme',
              'nbsphinx>=0.2.12',
              'sphinxcontrib_github_alt',
              'ipython',
-             jupyter_client_req,
+             jupyter_km_req,
              ],
 }
 

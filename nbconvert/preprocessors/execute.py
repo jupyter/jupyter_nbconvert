@@ -158,16 +158,6 @@ class ExecutePreprocessor(Preprocessor):
         )
     ).tag(config=True)
 
-    @default('kernel_name')
-    def _kernel_name_default(self):
-        try:
-            return self.nb.metadata.get('kernelspec', {}).get('name', 'python')
-        except AttributeError:
-            raise AttributeError('You did not specify a kernel_name for '
-                                 'the ExecutePreprocessor and you have not set '
-                                 'self.nb to be able to use that to infer the '
-                                 'kernel_name.')
-
     raise_on_iopub_timeout = Bool(False,
         help=dedent(
             """
@@ -205,19 +195,6 @@ class ExecutePreprocessor(Preprocessor):
             )
     ).tag(config=True)
 
-    kernel_manager_class = Type(
-        config=True,
-        help='The kernel manager class to use.'
-    )
-    @default('kernel_manager_class')
-    def _kernel_manager_class_default(self):
-        """Use a dynamic default to avoid importing jupyter_client at startup"""
-        try:
-            from jupyter_client import KernelManager
-        except ImportError:
-            raise ImportError("`nbconvert --execute` requires the jupyter_client package: `pip install jupyter_client`")
-        return KernelManager
-
     _display_id_map = Dict(
         help=dedent(
               """
@@ -230,38 +207,6 @@ class ExecutePreprocessor(Preprocessor):
                    }
               }
               """))
-
-    def start_new_kernel(self, **kwargs):
-        """Creates a new kernel manager and kernel client.
-
-        Parameters
-        ----------
-        kwargs :
-            Any options for `self.kernel_manager_class.start_kernel()`. Because
-            that defaults to KernelManager, this will likely include options
-            accepted by `KernelManager.start_kernel()``, which includes `cwd`.
-
-        Returns
-        -------
-        km : KernelManager
-            A kernel manager as created by self.kernel_manager_class.
-        kc : KernelClient
-            Kernel client as created by the kernel manager `km`.
-        """
-        km = self.kernel_manager_class(kernel_name=self.kernel_name,
-                                       config=self.config)
-        km.start_kernel(extra_arguments=self.extra_arguments, **kwargs)
-
-        kc = km.client()
-        kc.start_channels()
-        try:
-            kc.wait_for_ready(timeout=self.startup_timeout)
-        except RuntimeError:
-            kc.stop_channels()
-            km.shutdown_kernel()
-            raise
-        kc.allow_stdin = False
-        return km, kc
 
     @contextmanager
     def setup_preprocessor(self, nb, resources, km=None):
@@ -295,40 +240,44 @@ class ExecutePreprocessor(Preprocessor):
         resources : dictionary
             Additional resources used in the conversion process.
         """
+        # Nbconvert can be installed without these, so do the imports only
+        # when the preprocessor is being used.
+        from jupyter_kernel_mgmt.discovery import KernelFinder
+        from jupyter_kernel_mgmt.client import BlockingKernelClient
+
         path = resources.get('metadata', {}).get('path', '') or None
         self.nb = nb
         # clear display_id map
         self._display_id_map = {}
 
-        if km is None:
-            self.km, self.kc = self.start_new_kernel(cwd=path)
-            try:
-                # Yielding unbound args for more easier understanding and downstream consumption
-                yield nb, self.km, self.kc
-            finally:
-                self.kc.stop_channels()
-                self.km.shutdown_kernel(now=self.shutdown_kernel == 'immediate')
-
-                for attr in ['nb', 'km', 'kc']:
-                    delattr(self, attr)
+        kf = KernelFinder.from_entrypoints()
+        if self.kernel_name:
+            kernel_name = self.kernel_name
+            if '/' not in kernel_name:
+                kernel_name = 'spec/' + kernel_name
         else:
-            self.km = km
-            if not km.has_kernel:
-                km.start_kernel(extra_arguments=self.extra_arguments, **kwargs)
-            self.kc = km.client()
+            try:
+                kernel_name = 'spec/' + nb.metadata.get('kernelspec', {})[
+                    'name']
+            except KeyError:
+                kernel_name = 'pyimport/kernel'
 
-            self.kc.start_channels()
-            try:
-                self.kc.wait_for_ready(timeout=self.startup_timeout)
-            except RuntimeError:
-                self.kc.stop_channels()
-                raise
-            self.kc.allow_stdin = False
-            try:
-                yield nb, self.km, self.kc
-            finally:
-                for attr in ['nb', 'km', 'kc']:
-                    delattr(self, attr)
+        self.log.info("Launching kernel %s to execute notebook" % kernel_name)
+        conn_info, self.km = kf.launch(kernel_name, cwd=path)
+        self.kc = BlockingKernelClient(conn_info, manager=self.km)
+        self.kc.wait_for_ready()
+
+        self.kc.allow_stdin = False
+        self.nb = nb
+
+        try:
+            yield nb, self.km, self.kc
+        finally:
+            if self.shutdown_kernel == 'immediate':
+                self.km.kill()
+            else:
+                self.kc.shutdown_or_terminate()
+            self.kc.close()
 
     def preprocess(self, nb, resources, km=None):
         """
@@ -357,10 +306,9 @@ class ExecutePreprocessor(Preprocessor):
         """
 
         with self.setup_preprocessor(nb, resources, km=km):
-            self.log.info("Executing notebook with kernel: %s" % self.kernel_name)
             nb, resources = super(ExecutePreprocessor, self).preprocess(nb, resources)
-            info_msg = self._wait_for_reply(self.kc.kernel_info())
-            nb.metadata['language_info'] = info_msg['content']['language_info']
+            info_dict = self.kc.loop_client.kernel_info_dict
+            nb.metadata['language_info'] = info_dict['language_info']
 
         return nb, resources
 
@@ -383,8 +331,8 @@ class ExecutePreprocessor(Preprocessor):
             for out in outputs:
                 if out.output_type == 'error':
                     raise CellExecutionError.from_cell_and_msg(cell, out)
-            if (reply is not None) and reply['content']['status'] == 'error':
-                raise CellExecutionError.from_cell_and_msg(cell, reply['content'])
+            if (reply is not None) and reply.content['status'] == 'error':
+                raise CellExecutionError.from_cell_and_msg(cell, reply.content)
         return cell, resources
 
     def _update_display_id(self, display_id, msg):
@@ -393,11 +341,11 @@ class ExecutePreprocessor(Preprocessor):
             self.log.debug("display id %r not in %s", display_id, self._display_id_map)
             return
 
-        if msg['header']['msg_type'] == 'update_display_data':
-            msg['header']['msg_type'] = 'display_data'
+        if msg.header['msg_type'] == 'update_display_data':
+            msg.header['msg_type'] = 'display_data'
 
         try:
-            out = output_from_msg(msg)
+            out = output_from_msg(msg.make_dict())
         except ValueError:
             self.log.error("unhandled iopub msg: " + msg['msg_type'])
             return
@@ -409,76 +357,53 @@ class ExecutePreprocessor(Preprocessor):
                 outputs[output_idx]['data'] = out['data']
                 outputs[output_idx]['metadata'] = out['metadata']
 
-    def _wait_for_reply(self, msg_id, cell=None):
-        # wait for finish, with timeout
-        while True:
-            try:
-                if self.timeout_func is not None and cell is not None:
-                    timeout = self.timeout_func(cell)
-                else:
-                    timeout = self.timeout
+    def _get_timeout(self, cell):
+        if self.timeout_func is not None:
+            timeout = self.timeout_func(cell)
+        else:
+            timeout = self.timeout
 
-                if not timeout or timeout < 0:
-                    timeout = None
-                msg = self.kc.shell_channel.get_msg(timeout=timeout)
-            except Empty:
-                self.log.error(
-                    "Timeout waiting for execute reply (%is)." % self.timeout)
-                if self.interrupt_on_timeout:
-                    self.log.error("Interrupting kernel")
-                    self.km.interrupt_kernel()
-                    break
-                else:
-                    try:
-                        exception = TimeoutError
-                    except NameError:
-                        exception = RuntimeError
-                    raise exception("Cell execution timed out")
-
-            if msg['parent_header'].get('msg_id') == msg_id:
-                return msg
-            else:
-                # not our reply
-                continue
+        if not timeout or timeout < 0:
+            timeout = None
+        return timeout
 
     def run_cell(self, cell, cell_index=0):
-        msg_id = self.kc.execute(cell.source)
+        from tornado import ioloop
+
+        timeout = self._get_timeout(cell)
+        interrupt_timeout = None
+        if self.interrupt_on_timeout:
+            interrupt_timeout = timeout
+            timeout += 5
+
+        out_msgs = []
+
         self.log.debug("Executing cell:\n%s", cell.source)
-        exec_reply = self._wait_for_reply(msg_id, cell)
+        try:
+            reply = self.kc.execute_interactive(
+                cell.source,
+                output_hook=out_msgs.append,
+                timeout=timeout,
+                interrupt_timeout=interrupt_timeout,
+                idle_timeout=self.iopub_timeout,
+                raise_on_no_idle=self.raise_on_iopub_timeout,
+            )
+        except ioloop.TimeoutError:
+            raise TimeoutError("Cell execution timed out")
 
         outs = cell.outputs = []
 
-        while True:
-            try:
-                # We've already waited for execute_reply, so all output
-                # should already be waiting. However, on slow networks, like
-                # in certain CI systems, waiting < 1 second might miss messages.
-                # So long as the kernel sends a status:idle message when it
-                # finishes, we won't actually have to wait this long, anyway.
-                msg = self.kc.iopub_channel.get_msg(timeout=self.iopub_timeout)
-            except Empty:
-                self.log.warning("Timeout waiting for IOPub output")
-                if self.raise_on_iopub_timeout:
-                    raise RuntimeError("Timeout waiting for IOPub output")
-                else:
-                    break
-            if msg['parent_header'].get('msg_id') != msg_id:
-                # not an output from our execution
-                continue
-
-            msg_type = msg['msg_type']
+        for msg in out_msgs:
+            msg_type = msg.header['msg_type']
             self.log.debug("output: %s", msg_type)
-            content = msg['content']
+            content = msg.content
 
             # set the prompt number for the input and the output
             if 'execution_count' in content:
                 cell['execution_count'] = content['execution_count']
 
             if msg_type == 'status':
-                if content['execution_state'] == 'idle':
-                    break
-                else:
-                    continue
+                continue
             elif msg_type == 'execute_input':
                 continue
             elif msg_type == 'clear_output':
@@ -493,7 +418,7 @@ class ExecutePreprocessor(Preprocessor):
 
             display_id = None
             if msg_type in {'execute_result', 'display_data', 'update_display_data'}:
-                display_id = msg['content'].get('transient', {}).get('display_id', None)
+                display_id = msg.content.get('transient', {}).get('display_id', None)
                 if display_id:
                     self._update_display_id(display_id, msg)
                 if msg_type == 'update_display_data':
@@ -501,7 +426,7 @@ class ExecutePreprocessor(Preprocessor):
                     continue
 
             try:
-                out = output_from_msg(msg)
+                out = output_from_msg(msg.make_dict())
             except ValueError:
                 self.log.error("unhandled iopub msg: " + msg_type)
                 continue
@@ -514,7 +439,7 @@ class ExecutePreprocessor(Preprocessor):
 
             outs.append(out)
 
-        return exec_reply, outs
+        return reply, outs
 
 
 def executenb(nb, cwd=None, km=None, **kwargs):
