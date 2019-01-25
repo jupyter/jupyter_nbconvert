@@ -57,8 +57,13 @@ class TestExecute(PreprocessorTestsBase):
         if 'text/plain' in output.get('data', {}):
             output['data']['text/plain'] = \
                 re.sub(addr_pat, '<HEXADDR>', output['data']['text/plain'])
+        if 'application/vnd.jupyter.widget-view+json' in output.get('data', {}):
+            output['data']['application/vnd.jupyter.widget-view+json'] \
+                ['model_id'] = '<MODEL_ID>'
         for key, value in output.get('data', {}).items():
             if isinstance(value, string_types):
+                if sys.version_info.major == 2:
+                    value = value.replace('u\'', '\'')
                 output['data'][key] = _normalize_base64(value)
         if 'traceback' in output:
             tb = [
@@ -305,3 +310,33 @@ class TestExecute(PreprocessorTestsBase):
         original = copy.deepcopy(input_nb)
         executed = executenb(original, os.path.dirname(filename))
         self.assert_notebooks_equal(original, executed)
+
+    def test_widgets(self):
+        """Runs a test notebook with widgets and checks the widget state is saved."""
+        input_file = os.path.join(current_dir, 'files', 'JupyterWidgets.ipynb')
+        opts = dict(kernel_name="python")
+        res = self.build_resources()
+        res['metadata']['path'] = os.path.dirname(input_file)
+        input_nb, output_nb = self.run_notebook(input_file, opts, res)
+
+        output_data = [
+            output.get('data', {})
+            for cell in output_nb['cells']
+            for output in cell['outputs']
+        ]
+
+        model_ids = [
+            data['application/vnd.jupyter.widget-view+json']['model_id']
+            for data in output_data
+            if 'application/vnd.jupyter.widget-view+json' in data
+        ]
+
+        wdata = output_nb['metadata']['widgets'] \
+                ['application/vnd.jupyter.widget-state+json']
+        for k in model_ids:
+            d = wdata['state'][k]
+            assert 'model_name' in d
+            assert 'model_module' in d
+            assert 'state' in d
+        assert 'version_major' in wdata
+        assert 'version_minor' in wdata

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["es2015", "dom"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // "noEmitOnError": true,
+    // "noUnusedLocals": true,
+    "outDir": "./lib",
+    "target": "es2015",
+    // "strict": false,
+    // "strictNullChecks": false,
+    "types": ["requirejs"],
+  },
+  "include": ["src/*"]
+}

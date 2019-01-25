@@ -3,7 +3,7 @@ and updates outputs"""
 
 # Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
-
+import base64
 from textwrap import dedent
 from contextlib import contextmanager
 
@@ -292,6 +292,8 @@ class ExecutePreprocessor(Preprocessor):
         self.nb = nb
         # clear display_id map
         self._display_id_map = {}
+        self.widget_state = {}
+        self.widget_buffers = {}
 
         if km is None:
             self.km, self.kc = self.start_new_kernel(cwd=path)
@@ -354,8 +356,26 @@ class ExecutePreprocessor(Preprocessor):
             nb, resources = super(ExecutePreprocessor, self).preprocess(nb, resources)
             info_msg = self._wait_for_reply(self.kc.kernel_info())
             nb.metadata['language_info'] = info_msg['content']['language_info']
+            self.set_widgets_metadata()
 
         return nb, resources
+
+    def set_widgets_metadata(self):
+        if self.widget_state:
+            self.nb.metadata.widgets = {
+                'application/vnd.jupyter.widget-state+json': {
+                    'state': {
+                        model_id: _serialize_widget_state(state)
+                        for model_id, state in self.widget_state.items() if '_model_name' in state
+                    },
+                    'version_major': 2,
+                    'version_minor': 0,
+                }
+            }
+            for key, widget in self.nb.metadata.widgets['application/vnd.jupyter.widget-state+json']['state'].items():
+                buffers = self.widget_buffers.get(key)
+                if buffers:
+                    widget['buffers'] = buffers
 
     def preprocess_cell(self, cell, resources, cell_index):
         """
@@ -482,6 +502,11 @@ class ExecutePreprocessor(Preprocessor):
                         cell_map[cell_index] = []
                 continue
             elif msg_type.startswith('comm'):
+                data = content['data']
+                if 'state' in data:  # ignore custom msg'es
+                    self.widget_state.setdefault(content['comm_id'], {}).update(data['state'])
+                    if 'buffer_paths' in data and data['buffer_paths']:
+                        self.widget_buffers[content['comm_id']] = _get_buffer_data(msg)
                 continue
 
             display_id = None
@@ -532,3 +557,26 @@ def executenb(nb, cwd=None, km=None, **kwargs):
         resources['metadata'] = {'path': cwd}
     ep = ExecutePreprocessor(**kwargs)
     return ep.preprocess(nb, resources, km=km)[0]
+
+
+def _serialize_widget_state(state):
+    """Serialize a widget state, following format in @jupyter-widgets/schema."""
+    return {
+        'model_name': state.get('_model_name'),
+        'model_module': state.get('_model_module'),
+        'model_module_version': state.get('_model_module_version'),
+        'state': state,
+    }
+
+
+def _get_buffer_data(msg):
+    encoded_buffers = []
+    paths = msg['content']['data']['buffer_paths']
+    buffers = msg['buffers']
+    for path, buffer in zip(paths, buffers):
+        encoded_buffers.append({
+            'data': base64.b64encode(buffer).decode('utf-8'),
+            'encoding': 'base64',
+            'path': path
+        })
+    return encoded_buffers

@@ -20,11 +20,14 @@ calling super.
 
 consider calling super even if it is a leave block, we might insert more blocks later.
 
+                {%- if cell.outputs and resources.global_content_filter.include_output and 'voila:output:table' in cell.metadata.tags -%}
+
 #}
 {%- block header -%}
 {%- endblock header -%}
 {%- block body -%}
 {%- for cell in nb.cells -%}
+    {% set cell_index = loop.index0 %}
     {%- block any_cell scoped -%}
         {%- if cell.cell_type == 'code'-%} 
             {%- if resources.global_content_filter.include_code -%}
@@ -44,6 +47,7 @@ consider calling super even if it is a leave block, we might insert more blocks 
                         {%- endif -%}
                         {%- block outputs scoped -%}
                             {%- for output in cell.outputs -%}
+                                {% set output_index = loop.index0 %}
                                 {%- block output scoped -%}
                                     {%- if output.output_type == 'execute_result' -%}
                                         {%- block execute_result scoped -%}{%- endblock execute_result -%}

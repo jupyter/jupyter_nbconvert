@@ -82,6 +82,7 @@ class Exporter(LoggingConfigurable):
                                   'nbconvert.preprocessors.CSSHTMLHeaderPreprocessor',
                                   'nbconvert.preprocessors.LatexPreprocessor',
                                   'nbconvert.preprocessors.HighlightMagicsPreprocessor',
+                                  'nbconvert.preprocessors.SnapshotPreProcessor',
                                   'nbconvert.preprocessors.ExtractOutputPreprocessor',
                               ],
         help="""List of preprocessors available by default, by name, namespace,

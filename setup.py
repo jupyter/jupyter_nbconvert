@@ -30,6 +30,7 @@ PY3 = (sys.version_info[0] >= 3)
 import os
 import setuptools
 import io
+import platform
 
 from setuptools.command.bdist_egg import bdist_egg
 
@@ -39,10 +40,13 @@ try:
     from urllib.request import urlopen
 except ImportError:
     from urllib import urlopen
+from subprocess import check_call
+
 
 from distutils.core import setup
 from distutils.cmd import Command
 from distutils.command.build import build
+from distutils.command.build_py import build_py
 from distutils.command.sdist import sdist
 
 pjoin = os.path.join
@@ -56,7 +60,7 @@ for d, _, _ in os.walk(pjoin(here, name)):
 
 package_data = {
     'nbconvert.filters' : ['marked.js'],
-    'nbconvert.resources' : ['style.min.css'],
+    'nbconvert.resources' : ['style.min.css', '*.js', '*.js.map', '*.eot', '*.svg', '*.woff2', '*.ttf', '*.woff'],
     'nbconvert' : [
         'tests/files/*.*',
         'tests/exporter_entrypoint/*.py',
@@ -126,7 +130,81 @@ class FetchCSS(Command):
             f.write(css)
         print("Downloaded Notebook CSS to %s" % dest)
 
-cmdclass = {'css': FetchCSS}
+def update_package_data(distribution):
+    """update package_data to catch changes during setup"""
+    build_py = distribution.get_command_obj('build_py')
+    # distribution.package_data = find_package_data()
+    # re-init build_py options which load package_data
+    build_py.finalize_options()
+
+
+node_root = os.path.join(here, '.')
+npm_path = os.pathsep.join([
+    os.path.join(node_root, 'node_modules', '.bin'),
+                os.environ.get('PATH', os.defpath),
+])
+
+class NPM(Command):
+    description = 'install package.json dependencies using npm'
+
+    user_options = []
+
+    node_modules = os.path.join(node_root, 'node_modules')
+
+    targets = [
+        os.path.join(here, 'nbconvert', 'resources', 'snapshot.js'),
+    ]
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def get_npm_name(self):
+        npmName = 'npm'
+        if platform.system() == 'Windows':
+            npmName = 'npm.cmd'
+        return npmName
+
+    def has_npm(self):
+        npmName = self.get_npm_name()
+        try:
+            check_call([npmName, '--version'])
+            return True
+        except:
+            return False
+
+    def should_run_npm_install(self):
+        package_json = os.path.join(node_root, 'package.json')
+        node_modules_exists = os.path.exists(self.node_modules)
+        return self.has_npm()
+
+    def run(self):
+        has_npm = self.has_npm()
+        if not has_npm:
+            raise OSError("`npm` unavailable.  If you're running this command using sudo, make sure `npm` is available to sudo")
+
+        env = os.environ.copy()
+        env['PATH'] = npm_path
+
+        if self.should_run_npm_install():
+            print("Installing build dependencies with npm.  This may take a while...")
+            npmName = self.get_npm_name();
+            check_call([npmName, 'install'], cwd=node_root, stdout=sys.stdout, stderr=sys.stderr)
+            os.utime(self.node_modules, None)
+
+        for t in self.targets:
+            if not os.path.exists(t):
+                msg = 'Missing file: %s' % t
+                if not has_npm:
+                    msg += '\nnpm is required to build a development version of widgetsnbextension'
+                raise ValueError(msg)
+
+        # update package data in case this created new files
+        update_package_data(self.distribution)
+
+cmdclass = {'css': FetchCSS, 'js': NPM}
 
 
 class bdist_egg_disabled(bdist_egg):
@@ -145,9 +223,39 @@ def css_first(command):
             return command.run(self)
     return CSSFirst
 
-cmdclass['build'] = css_first(build)
-cmdclass['sdist'] = css_first(sdist)
+is_repo = os.path.exists(os.path.join(here, '.git'))
+
+def js_first(command, strict=False):
+    """decorator for building minified js/css prior to another command"""
+    class JSFirst(command):
+        def run(self):
+            jsdeps = self.distribution.get_command_obj('js')
+            if not is_repo and all(os.path.exists(t) for t in jsdeps.targets):
+                # sdist, nothing to do
+                command.run(self)
+                return
+
+            try:
+                self.distribution.run_command('js')
+            except Exception as e:
+                missing = [t for t in jsdeps.targets if not os.path.exists(t)]
+                if strict or missing:
+                    print('rebuilding js and css failed')
+                    if missing:
+                        print('missing files: %s' % missing)
+                    raise e
+                else:
+                    print('rebuilding js and css failed (not a problem)')
+                    print(str(e))
+            command.run(self)
+            update_package_data(self.distribution)
+    return JSFirst
+
+cmdclass['build'] = js_first(css_first(build))
+cmdclass['sdist'] = js_first(css_first(sdist), strict=True)
 cmdclass['bdist_egg'] = bdist_egg if 'bdist_egg' in sys.argv else bdist_egg_disabled
+
+
 
 for d, _, _ in os.walk(pjoin(pkg_root, 'templates')):
     g = pjoin(d[len(pkg_root)+1:], '*.*')
@@ -228,8 +336,9 @@ install_requires = setuptools_args['install_requires'] = [
 jupyter_client_req = 'jupyter_client>=4.2'
 
 extra_requirements = {
-    'test': ['pytest', 'pytest-cov', 'ipykernel', jupyter_client_req],
+    'test': ['pytest', 'pytest-cov', 'ipykernel', jupyter_client_req, 'ipywidgets>=7', 'PyChromeDevTools', 'pillow'],
     'serve': ['tornado>=4.0'],
+    'snapshot': ['PyChromeDevTools'],
     'execute': [jupyter_client_req],
     'docs': ['sphinx>=1.5.1',
              'sphinx_rtd_theme',

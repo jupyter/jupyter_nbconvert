@@ -65,6 +65,10 @@ nbconvert_flags.update({
         {'ExecutePreprocessor' : {'enabled' : True}},
         "Execute the notebook prior to export."
         ),
+    'snapshot' : (
+        {'SnapshotPreProcessor' : {'enabled' : True}},
+        "Create snapshots using a real browser"
+        ),
     'allow-errors' : (
         {'ExecutePreprocessor' : {'allow_errors' : True}},
         ("Continue notebook execution even if one of the cells throws "
@@ -244,7 +248,8 @@ class NbConvertApp(JupyterApp):
                                     help="""PostProcessor class used to write the
                                     results of the conversion"""
     ).tag(config=True)
-    postprocessor_aliases = {'serve': 'nbconvert.postprocessors.serve.ServePostProcessor'}
+    postprocessor_aliases = {'serve': 'nbconvert.postprocessors.serve.ServePostProcessor',
+                        'render': 'nbconvert.postprocessors.render.RenderPostProcessor'}
     postprocessor_factory = Type(None, allow_none=True)
     
     @observe('postprocessor_class')
