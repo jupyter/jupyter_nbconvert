@@ -1,6 +1,18 @@
 {%- extends 'basic.tpl' -%}
 {% from 'mathjax.tpl' import mathjax %}
+{% from 'urls.tpl' import all_urls, all_attr %}
 
+{% if resources['reveal']['use_local_libs'] == true %}
+  {% set urls = all_urls.local_paths %}
+{% else %}
+  {% set urls = all_urls.default_cdn %}
+{% endif %}
+
+{% if resources['reveal']['use_sri_attr'] == true %}
+  {% set attr = all_attr.sri_attr %}
+{% else %}
+  {% set attr = all_attr.empty_attr %}
+{% endif %}
 
 {%- block header -%}
 <!DOCTYPE html>
@@ -11,8 +23,8 @@
 {% set nb_title = nb.metadata.get('title', '') or resources['metadata']['name'] %}
 <title>{{nb_title}}</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="{{urls.require_js_url}}" {{attr.require_js_attr}}></script>
+<script src="{{urls.jquery_url}}" {{attr.jquery_attr}}></script>
 
 {% block ipywidgets %}
 {%- if "widgets" in nb.metadata -%}
@@ -87,7 +99,7 @@ div#notebook-container{
 <link rel="stylesheet" href="custom.css">
 
 <!-- Loading mathjax macro -->
-{{ mathjax() }}
+{{ mathjax(urls) }}
 {%- endblock html_head -%}
 </head>
 {%- endblock header -%}

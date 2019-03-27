@@ -1,6 +1,6 @@
-{%- macro mathjax(url='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML') -%}
+{%- macro mathjax(urls) -%}
     <!-- Load mathjax -->
-    <script src="{{url}}"></script>
+    <script src="{{urls.mathjax_url}}" {{urls.mathjax_attr}}></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({

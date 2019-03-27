@@ -100,7 +100,7 @@ class SlidesExporter(HTMLExporter):
             warn("Please update RevealHelpPreprocessor.url_prefix to "
                  "SlidesExporter.reveal_url_prefix in config files.")
             return self.config.RevealHelpPreprocessor.url_prefix
-        return 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0'
+        return 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.7.0'
 
     reveal_theme = Unicode('simple',
         help="""
@@ -130,7 +130,7 @@ class SlidesExporter(HTMLExporter):
     ).tag(config=True)
 
     require_js_url = Unicode(
-        "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js",
         help="""
         URL to load require.js from.
 
@@ -139,7 +139,7 @@ class SlidesExporter(HTMLExporter):
     ).tag(config=True)
 
     jquery_url = Unicode(
-        "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js",
         help="""
         URL to load jQuery from.
 

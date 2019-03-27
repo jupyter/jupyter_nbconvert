@@ -6,7 +6,7 @@
 
 import os
 
-from traitlets import default, Unicode
+from traitlets import default, Unicode, Bool
 from traitlets.config import Config
 
 from nbconvert.filters.highlight import Highlight2HTML
@@ -25,6 +25,14 @@ class HTMLExporter(TemplateExporter):
 
     anchor_link_text = Unicode(u'¶',
         help="The text used as the text for anchor links.").tag(config=True)
+
+    use_local_libs = Bool(False,
+        help="If True, use local folder libs/ instead of fetching resources from CDN"
+    ).tag(config=True)
+
+    use_sri_attr = Bool(False,
+        help="If True, use SRI hashes for sub-resources, i.e. external javascript and CSS"
+    ).tag(config=True)
 
     @default('file_extension')
     def _file_extension_default(self):
@@ -88,11 +96,17 @@ class HTMLExporter(TemplateExporter):
         return output
 
     def from_notebook_node(self, nb, resources=None, **kw):
+        resources = self._init_resources(resources)
+        if 'reveal' not in resources:
+            resources['reveal'] = {}
+        resources['reveal']['use_local_libs'] = self.use_local_libs
+        resources['reveal']['use_sri_attr'] = self.use_sri_attr
+
         langinfo = nb.metadata.get('language_info', {})
         lexer = langinfo.get('pygments_lexer', langinfo.get('name', None))
         highlight_code = self.filters.get('highlight_code', Highlight2HTML(pygments_lexer=lexer, parent=self))
         self.register_filter('highlight_code', highlight_code)
         
-        output, resources = super(HTMLExporter, self).from_notebook_node(nb, resources, **kw)
+        output, resources = super(HTMLExporter, self).from_notebook_node(nb, resources=resources, **kw)
         att_output = self.process_attachments(nb, output)
         return att_output, resources
