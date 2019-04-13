@@ -43,7 +43,8 @@ class ExtractOutputPreprocessor(Preprocessor):
     ).tag(config=True)
 
     extract_output_types = Set(
-        {'image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'}
+        {'image/png', 'image/jpeg', 'image/svg+xml',
+         'application/pdf', 'application/json'}
     ).tag(config=True)
 
     def preprocess_cell(self, cell, resources, cell_index):
@@ -80,10 +81,7 @@ class ExtractOutputPreprocessor(Preprocessor):
                 if mime_type in out.data:
                     data = out.data[mime_type]
 
-                    if (
-                        not isinstance(data, text_type)
-                        or mime_type == 'application/json'
-                    ):
+                    if mime_type == 'application/json':
                         # Data is either JSON-like and was parsed into a Python
                         # object according to the spec, or data is for sure
                         # JSON. In the latter case we want to go extra sure that
