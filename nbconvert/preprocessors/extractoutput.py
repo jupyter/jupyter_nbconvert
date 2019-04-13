@@ -32,6 +32,33 @@ def guess_extension_without_jpe(mimetype):
         ext=".jpeg"
     return ext
 
+
+def guess_encoding(out, mime_type):
+    """
+    Check if the encoding is specified in output metadata, else use a heuristic
+    for reading if off of mime type.
+
+    Recognizes 3 types of encodings:
+        - json objects (both containers and strings)
+        - base64 encoded objects
+        - utf8 strings
+    """
+    data = out['data']
+    encoding = out.metadata.get(mime_type, {}).get('encoding')
+    if encoding in ('json', 'utf8', 'base64'):
+        return encoding
+    elif not isinstance(data, text_type) or mime_type == 'application/json':
+        # Data is either JSON-like and was parsed into a Python object according
+        # to the spec, or data is for sure JSON. In the latter case we want to
+        # go extra sure that we enclose a scalar string value into extra quotes
+        # by serializing it properly.
+        return 'json'
+    elif mime_type in {'image/png', 'image/jpeg', 'application/pdf'}:
+        return 'base64'
+    else:
+        return 'utf8'
+
+
 class ExtractOutputPreprocessor(Preprocessor):
     """
     Extracts all of the outputs from the notebook file.  The extracted 
@@ -79,28 +106,20 @@ class ExtractOutputPreprocessor(Preprocessor):
             for mime_type in self.extract_output_types:
                 if mime_type in out.data:
                     data = out.data[mime_type]
-
-                    if (
-                        not isinstance(data, text_type)
-                        or mime_type == 'application/json'
-                    ):
-                        # Data is either JSON-like and was parsed into a Python
-                        # object according to the spec, or data is for sure
-                        # JSON. In the latter case we want to go extra sure that
-                        # we enclose a scalar string value into extra quotes by
-                        # serializing it properly.
-                        data = json.dumps(data)
-
-                    #Binary files are base64-encoded, SVG is already XML
-                    if mime_type in {'image/png', 'image/jpeg', 'application/pdf'}:
-                        # data is b64-encoded as text (str, unicode),
-                        # we want the original bytes
+                    encoding = guess_encoding(out, mime_type)
+                    if encoding == 'base64':
                         data = a2b_base64(data)
-                    elif sys.platform == 'win32':
-                        data = data.replace('\n', '\r\n').encode("UTF-8")
-                    else:
+                    elif encoding in ('json', 'utf8'):
+                        if encoding == 'json':
+                            data = json.dumps(data)
+
+                        if sys.platform == 'win32':
+                            data = data.replace('\n', '\r\n')
+
                         data = data.encode("UTF-8")
-                    
+                    else:
+                        raise ValueError('Unknown encoding {}'.format(encoding))
+
                     ext = guess_extension_without_jpe(mime_type)
                     if ext is None:
                         ext = '.' + mime_type.rsplit('/')[-1]
