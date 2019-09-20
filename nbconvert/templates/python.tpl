@@ -16,5 +16,5 @@
 {% endblock input %}
 
 {% block markdowncell scoped %}
-{{ cell.source | comment_lines }}
+{{ cell.source | block_string_lines }}
 {% endblock markdowncell %}

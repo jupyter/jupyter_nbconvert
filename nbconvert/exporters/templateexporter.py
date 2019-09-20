@@ -42,6 +42,7 @@ default_filters = {
         'markdown2latex': filters.markdown2latex,
         'markdown2rst': filters.markdown2rst,
         'comment_lines': filters.comment_lines,
+        'block_string_lines': filters.block_string_lines,
         'strip_ansi': filters.strip_ansi,
         'strip_dollars': filters.strip_dollars,
         'strip_files_prefix': filters.strip_files_prefix,
