@@ -6,8 +6,10 @@ Removing cells, inputs, or outputs
 When converting Notebooks into other formats, it is possible to
 remove parts of a cell, or entire cells, using preprocessors.
 The notebook will remain unchanged, but the outputs will have
-certain pieces removed. Here are two primary ways to accomplish
-this.
+certain pieces removed. The two primary ways for removal are:
+
+    - Using cell tags
+    - Using regular expressions
 
 Removing pieces of cells using cell tags
 ----------------------------------------
@@ -50,7 +52,7 @@ is a list of strings. For each cell, this preprocessor checks whether
 the cell contents match any of the strings provided in ``patterns``.
 If the contents match any of the patterns, the cell is removed from the notebook.
 
-For example, execute the following command to convert a notebook to html
+For example, executing the following command will convert a notebook to html
 and remove cells containing only whitespace:
 
 .. code-block:: bash

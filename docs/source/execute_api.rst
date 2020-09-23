@@ -9,71 +9,108 @@ nbconvert provides a convenient way to execute the input cells of an
 as a .ipynb file.
 
 In this section we show how to execute a ``.ipynb`` notebook
-document saving the result in notebook format. If you need to export
+document and save the result in notebook format. If you need to export
 notebooks to other formats, such as reStructured Text or Markdown (optionally
 executing them) see section :doc:`nbconvert_library`.
 
-Executing notebooks can be very helpful, for example, to run all notebooks
-in Python library in one step, or as a way to automate the data analysis in
-projects involving more than one notebook.
+Executing notebooks can be helpful functionality for some use cases.
+For example, nbconvert can run all notebooks in a folder in one step.
+Automating the data analysis in projects involving more than one notebook
+is also possible.
+
+Notebook execution can be done either from the command line or programmatically
+using the Python API interface.
 
 Executing notebooks from the command line
 -----------------------------------------
-The same functionality of executing notebooks is exposed through a
-:doc:`command line interface <usage>` or a Python API interface.
-As an example, a notebook can be executed from the command line with::
+The same functionality of executing notebooks in Jupyter Notebook, JupyterLab,
+or other front-end applications is available through a
+:doc:`command line interface <usage>`.
+
+To execute a notebook from the command line, enter the command below and
+specify the command line options for the file to execute (``--execute``)
+and the output (``--to``)::
 
     jupyter nbconvert --to notebook --execute mynotebook.ipynb
 
+To find available command line options, enter:
+
+    jupyter nbconvert --help
+
 Executing notebooks using the Python API interface
 --------------------------------------------------
-This section will illustrate the Python API interface.
+Using nbconvert's Python API interface enables programmatic execution
+of notebooks. This satisfies the use case where notebooks could
+be executed from applications which import the nbconvert package.
 
-Example
-~~~~~~~
+A complete example
+~~~~~~~~~~~~~~~~~~
 
-Let's start with a complete quick example, leaving detailed explanations
-to the following sections.
+To better understand how to use nbconvert's Python API, let's start with a complete example.
+This example illustrates the basics and leaves more in-depth explanations
+to later sections. The basic steps include:
 
-**Import**: First we import nbconvert and the `ExecutePreprocessor`
+- import
+- load
+- configure
+- execute/run (preprocess)
+- save
+
+Import
+++++++
+First we import nbconvert and the `ExecutePreprocessor`
 class::
 
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
 
-**Load**: Assuming that ``notebook_filename`` contains the path of a notebook,
-we can load it with::
+Load
+++++
+Assuming that ``notebook_filename`` contains the path of a notebook,
+use the following to open it::
 
     with open(notebook_filename) as f:
         nb = nbformat.read(f, as_version=4)
 
-**Configure**: Next, we configure the notebook execution mode::
+Configure
++++++++++
+
+Next, we configure the notebook execution mode::
 
     ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
 
-We specified two (optional) arguments ``timeout`` and ``kernel_name``, which
-define respectively the cell execution timeout and the execution kernel.
+We specified two (optional) arguments ``timeout``, the cell execution
+timeout, and ``kernel_name``, the execution kernel's name.
 
     The option to specify **kernel_name** is new in nbconvert 4.2.
     When not specified or when using nbconvert <4.2,
     the default Python kernel is chosen.
 
-**Execute/Run (preprocess)**: To actually run the notebook we call the method
+Execute/Run (preprocess)
+++++++++++++++++++++++++
+To actually run the notebook we call the method
 :meth:`~ExecutePreprocessor.preprocess`::
 
     ep.preprocess(nb, {'metadata': {'path': 'notebooks/'}})
 
-Hopefully, we will not get any errors during the notebook execution
+Hopefully, notebook execution will not get any errors
 (see the last section for error handling). Note that ``path`` specifies
 in which folder to execute the notebook.
 
-**Save**: Finally, save the resulting notebook with::
+Save
+++++
+Finally, save the resulting notebook with::
 
     with open('executed_notebook.ipynb', 'w', encoding='utf-8') as f:
         nbformat.write(nb, f)
 
-That's all. Your executed notebook will be saved in the current folder
+Your executed notebook will be saved in the current folder
 in the file ``executed_notebook.ipynb``.
+
+Summary
++++++++
+The above example covers the fundamental steps of using nbconvert's Python API:
+import, load, configure, execute/run, save
 
 Execution arguments (traitlets)
 -------------------------------
@@ -112,8 +149,12 @@ maintain consistency: we can just run a notebook twice, specifying first
 Handling errors and exceptions
 ------------------------------
 
-In the previous sections we saw how to save an executed notebook, assuming
-there are no execution errors. But, what if there are errors?
+The previous sections covered how to save an executed notebook, assuming
+no execution errors occur. But, what if there are errors?
+
+The options for handling errors are flexible and include execution until
+the first error and save, handling errors during execution, and executing
+and then saving all errors. 
 
 Execution until first error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,7 +171,8 @@ and includes a full stack-trace and error (which can help debugging).
 
 Handling errors
 ~~~~~~~~~~~~~~~
-A useful pattern to execute notebooks while handling errors is the following::
+A useful pattern to execute notebooks while handling errors uses a
+try/except/finally block such as in the following::
 
     from nbconvert.preprocessors import CellExecutionError
 
@@ -146,7 +188,7 @@ A useful pattern to execute notebooks while handling errors is the following::
         with open(notebook_filename_out, mode='w', encoding='utf-8') as f:
             nbformat.write(nb, f)
 
-This will save the executed notebook regardless of execution errors.
+This approach will save the executed notebook regardless of execution errors.
 In case of errors, however, an additional message is printed and the
 `CellExecutionError` is raised. The message directs the user to
 the saved notebook for further inspection.
@@ -155,8 +197,8 @@ Execute and save all errors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 As a last scenario, it is sometimes useful to execute notebooks which raise
 exceptions, for example to show an error condition. In this case, instead of
-stopping the execution on the first error, we can keep executing the notebook
-using the traitlet ``allow_errors`` (default is False). With
+stopping the execution on the first error, we can keep executing the notebook.
+To do this we set the traitlet ``allow_errors`` (default is False) to True. With
 ``allow_errors=True``, the notebook is executed until the end, regardless of
 any error encountered during the execution. The output notebook, will contain
 the stack-traces and error messages for **all** the cells raising exceptions.
@@ -170,8 +212,8 @@ the state of all the widgets can be stored in the notebook's metadata.
 This allows rendering of the live widgets on for instance nbviewer, or when
 converting to html.
 
-We can tell nbconvert to not store the state using the ``store_widget_state``
-argument::
+Setting the ``store_widget_state`` argument determines whether or not to
+save the widget's state. We can tell nbconvert to not store the state using::
 
     jupyter nbconvert --ExecutePreprocessor.store_widget_state=False --to notebook --execute mynotebook.ipynb
 

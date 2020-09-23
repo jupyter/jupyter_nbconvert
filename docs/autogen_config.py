@@ -2,7 +2,7 @@
 """
 autogen_config.py
 
-Create config_options.rst, a Sphinx documentation source file.
+Creates config_options.rst, a Sphinx documentation source file.
 Documents the options that may be set in nbconvert's configuration file,
 jupyter_nbconvert_config.py.
 

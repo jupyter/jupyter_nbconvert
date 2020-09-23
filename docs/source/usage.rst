@@ -1,18 +1,18 @@
 .. highlight:: none
 
-Using as a command line tool
-============================
+Using the command line tool
+===========================
 
-The command-line syntax to run the ``nbconvert`` script is::
+``nbconvert`` can be run from the command line using::
 
   $ jupyter nbconvert --to FORMAT notebook.ipynb
 
-This will convert the Jupyter notebook file ``notebook.ipynb`` into the output
+For example, nbconvert will convert the Jupyter notebook file ``notebook.ipynb`` into the output
 format given by the ``FORMAT`` string.
 
 Default output format - HTML
 ----------------------------
-The default output format is HTML, for which the ``--to`` argument may be
+nbconvert's default output format is HTML, and the ``--to`` argument may be
 omitted::
 
   $ jupyter nbconvert notebook.ipynb
@@ -206,7 +206,7 @@ Markdown
 .. _convert_ascii:
 
 Ascii
-~~~~~~~~
+~~~~~
 * ``--to asciidoc``
 
   Ascii output.
@@ -301,18 +301,19 @@ the output may be sent to standard output with::
 
 Converting multiple notebooks
 -----------------------------
-Multiple notebooks can be specified from the command line::
+Multiple notebooks can be specified from the command line for execution::
 
   $ jupyter nbconvert notebook*.ipynb
   $ jupyter nbconvert notebook1.ipynb notebook2.ipynb
 
-or via a list in a configuration file, say ``mycfg.py``, containing the text:
+A list in a configuration file may also be used. For example, in a config file ``mycfg.py``,
+a list of notebooks can be specified:
 
 .. code-block:: python
 
   c = get_config()
   c.NbConvertApp.notebooks = ["notebook1.ipynb", "notebook2.ipynb"]
 
-and using the command::
+and then executed using the command::
 
   $ jupyter nbconvert --config mycfg.py

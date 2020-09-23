@@ -41,6 +41,9 @@ batch of notebook files to another format.
    removing_cells
    execute_api
 
+..
+   Comment: config_options is created by running autogen_config.py
+
 .. toctree::
    :maxdepth: 2
    :caption: Configuration
