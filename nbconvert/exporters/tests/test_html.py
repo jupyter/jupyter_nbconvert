@@ -4,6 +4,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import re
+from concurrent.futures import ProcessPoolExecutor
 
 from .base import ExportersTestsBase
 from ..html import HTMLExporter
@@ -145,4 +146,13 @@ class TestHTMLExporter(ExportersTestsBase):
         Can a HTMLExporter export using the 'basic' template?
         """
         (output, resources) = HTMLExporter(template_name='basic').from_filename(self._get_notebook())
+        assert len(output) > 0
+        
+    def test_pickle(self):
+        """
+        Can HTML exporters be pickled & called across processes?
+        """
+        exporter = HTMLExporter()
+        executor = ProcessPoolExecutor()
+        (output, resources) = executor.submit(exporter.from_filename, self._get_notebook()).result()
         assert len(output) > 0

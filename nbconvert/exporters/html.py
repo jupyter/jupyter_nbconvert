@@ -118,47 +118,49 @@ class HTMLExporter(TemplateExporter):
         self.register_filter('highlight_code', highlight_code)
         return super().from_notebook_node(nb, resources, **kw)
 
+
+    def _resources_include_css(self, name):
+        env = self.environment
+        code = """<style type="text/css">\n%s</style>""" % (env.loader.get_source(env, name)[0])
+        return jinja2.Markup(code)
+        
+    def _resources_include_js(self, name):
+        env = self.environment
+        code = """<script>\n%s</script>""" % (env.loader.get_source(env, name)[0])
+        return jinja2.Markup(code)
+
+    def _resources_include_url(self, name):
+        env = self.environment
+        mime_type, encoding = mimetypes.guess_type(name)
+        try:
+            # we try to load via the jinja loader, but that tries to load
+            # as (encoded) text
+            data = env.loader.get_source(env, name)[0].encode('utf8')
+        except UnicodeDecodeError:
+            # if that fails (for instance a binary file, png or ttf)
+            # we mimic jinja2
+            pieces = split_template_path(name)
+            searchpaths = self.get_template_paths()
+            for searchpath in searchpaths:
+                filename = os.path.join(searchpath, *pieces)
+                print(filename, os.path.exists(filename))
+                if os.path.exists(filename):
+                    with open(filename, "rb") as f:
+                        data = f.read()
+                        break
+            else:
+                raise ValueError("No file %r found in %r" % (name, searchpaths))
+        data = base64.b64encode(data)
+        data = data.replace(b'\n', b'').decode('ascii')
+        src = 'data:{mime_type};base64,{data}'.format(mime_type=mime_type, data=data)
+        return jinja2.Markup(src)
+
     def _init_resources(self, resources):
-        def resources_include_css(name):
-            env = self.environment
-            code = """<style type="text/css">\n%s</style>""" % (env.loader.get_source(env, name)[0])
-            return jinja2.Markup(code)
-
-        def resources_include_js(name):
-            env = self.environment
-            code = """<script>\n%s</script>""" % (env.loader.get_source(env, name)[0])
-            return jinja2.Markup(code)
-
-        def resources_include_url(name):
-            env = self.environment
-            mime_type, encoding = mimetypes.guess_type(name)
-            try:
-                # we try to load via the jinja loader, but that tries to load
-                # as (encoded) text
-                data = env.loader.get_source(env, name)[0].encode('utf8')
-            except UnicodeDecodeError:
-                # if that fails (for instance a binary file, png or ttf)
-                # we mimic jinja2
-                pieces = split_template_path(name)
-                searchpaths = self.get_template_paths()
-                for searchpath in searchpaths:
-                    filename = os.path.join(searchpath, *pieces)
-                    print(filename, os.path.exists(filename))
-                    if os.path.exists(filename):
-                        with open(filename, "rb") as f:
-                            data = f.read()
-                            break
-                else:
-                    raise ValueError("No file %r found in %r" % (name, searchpaths))
-            data = base64.b64encode(data)
-            data = data.replace(b'\n', b'').decode('ascii')
-            src = 'data:{mime_type};base64,{data}'.format(mime_type=mime_type, data=data)
-            return jinja2.Markup(src)
         resources = super()._init_resources(resources)
         resources['theme'] = self.theme
-        resources['include_css'] = resources_include_css
-        resources['include_js'] = resources_include_js
-        resources['include_url'] = resources_include_url
+        resources['include_css'] = self._resources_include_css
+        resources['include_js'] = self._resources_include_js
+        resources['include_url'] = self._resources_include_url
         resources['require_js_url'] = self.require_js_url
         resources['jquery_url'] = self.jquery_url
         return resources

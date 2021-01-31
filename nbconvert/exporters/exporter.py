@@ -309,8 +309,8 @@ class Exporter(LoggingConfigurable):
 
         # Do a copy.deepcopy first,
         # we are never safe enough with what the preprocessors could do.
-        nbc =  copy.deepcopy(nb)
-        resc = copy.deepcopy(resources)
+        nbc =  copy.deepcopy(nb, memo={id(self): self})
+        resc = copy.deepcopy(resources, memo={id(self): self})
 
         # Run each preprocessor on the notebook.  Carry the output along
         # to each preprocessor
