@@ -238,7 +238,7 @@ setup_args = dict(
 
 setup_args["install_requires"] = [
     "mistune>=0.8.1,<2",
-    "jinja2>=2.4",
+    "jinja2>=2.4,<3.2",
     "pygments>=2.4.1",
     "jupyterlab_pygments",
     "traitlets>=5.0",
@@ -250,7 +250,7 @@ setup_args["install_requires"] = [
     "defusedxml",
     "beautifulsoup4",
     "nbclient>=0.5.0,<0.6.0",
-    "MarkupSafe>=2.0",
+    "MarkupSafe>=2.0,<2.2",
 ]
 
 pyppeteer_req = "pyppeteer>=1,<1.1"
