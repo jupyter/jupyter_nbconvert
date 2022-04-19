@@ -54,6 +54,28 @@ override this.-=))
     \else
         \usepackage{fontspec}
         \usepackage{unicode-math}
+        % Try to load cm-unicode, using filenames
+        % to support both XeLaTeX and LuaLaTeX.
+        \IfFontExistsTF{cmunrm.otf}{
+        \setmainfont{cmun}[
+               Extension=.otf,
+               UprightFont=*rm,
+               ItalicFont=*ti,
+               BoldFont=*bx,
+               BoldItalicFont=*bi]
+        \setmonofont{cmun}[
+               Extension=.otf,
+               UprightFont=*tt,
+               ItalicFont=*it,
+               BoldFont=*tb,
+               BoldItalicFont=*tx]
+        \setsansfont{cmun}[
+               Extension=.otf,
+               UprightFont=*ss,
+               ItalicFont=*si,
+               BoldFont=*sx,
+               BoldItalicFont=*so]
+        }{}
     \fi
 
     \usepackage{fancyvrb} % verbatim replacement that allows latex
