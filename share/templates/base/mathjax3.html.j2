@@ -1,0 +1,34 @@
+{%- macro mathjax(url="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js") -%}
+<!-- Load mathjax -->
+<!-- MathJax configuration -->
+<script>
+    window.MathJax = {
+	tex: {
+	    tags: "ams",
+	    useLabelIds: true,
+	    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+	    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+	    processEscapes: true,
+	    processEnvironments: true,
+	    autoload: {
+	    color: [],
+	    colorv2: ['color']
+	    },
+	    packages: {'[+]': ['noerrors'], '[-]': ['textmacros']}
+	},
+	chtml: {
+	    displayAlign: 'center'
+	},
+	options: {
+	    ignoreHtmlClass: 'tex2jax_ignore',
+	    processHtmlClass: 'tex2jax_process'
+	},
+	loader: {
+	    load: ['[tex]/noerrors', '[tex]/textmacros', 'ui/safe']
+	}
+    };
+</script>
+<script src="{{url}}" id="MathJax-script"> </script>
+
+<!-- End of mathjax configuration -->
+{%- endmacro %}
