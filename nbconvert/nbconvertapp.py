@@ -17,7 +17,16 @@ import typing as t
 from textwrap import dedent, fill
 
 from jupyter_core.application import JupyterApp, base_aliases, base_flags
-from traitlets import Bool, DottedObjectName, Instance, List, Type, Unicode, default, observe
+from traitlets import (
+    Bool,
+    DottedObjectName,
+    Instance,
+    List,
+    Type,
+    Unicode,
+    default,
+    observe,
+)
 from traitlets.config import Configurable, catch_config_error
 from traitlets.utils.importstring import import_item
 
@@ -60,6 +69,7 @@ nbconvert_aliases.update(
         "writer": "NbConvertApp.writer_class",
         "post": "NbConvertApp.postprocessor_class",
         "output": "NbConvertApp.output_base",
+        "newline": "NbConvertApp.newline",
         "output-dir": "FilesWriter.build_directory",
         "reveal-prefix": "SlidesExporter.reveal_url_prefix",
         "nbformat": "NotebookExporter.nbformat_version",
@@ -120,7 +130,10 @@ nbconvert_flags.update(
         ),
         "coalesce-streams": (
             {
-                "NbConvertApp": {"use_output_suffix": False, "export_format": "notebook"},
+                "NbConvertApp": {
+                    "use_output_suffix": False,
+                    "export_format": "notebook",
+                },
                 "FilesWriter": {"build_directory": ""},
                 "CoalesceStreamsPreprocessor": {"enabled": True},
             },
@@ -303,6 +316,12 @@ class NbConvertApp(JupyterApp):
         "stdoutwriter": "nbconvert.writers.stdout.StdoutWriter",
     }
     writer_factory = Type(allow_none=True)
+
+    newline = Unicode(
+        None,
+        help="""The line ending to use when writing text. See builtin:`open`""",
+        allow_none=True,
+    ).tag(config=True)
 
     @observe("writer_class")
     def _writer_class_changed(self, change):
@@ -523,7 +542,9 @@ class NbConvertApp(JupyterApp):
         if not self.writer:
             msg = "No writer object defined!"
             raise ValueError(msg)
-        return self.writer.write(output, resources, notebook_name=notebook_name)
+        return self.writer.write(
+            output, resources, notebook_name=notebook_name, newline=self.newline
+        )
 
     def postprocess_single_notebook(self, write_results):
         """Step 4: Post-process the written file
@@ -628,7 +649,13 @@ class NbConvertApp(JupyterApp):
         """
         categories = {
             category: [c for c in self._classes_inc_parents() if category in c.__name__.lower()]
-            for category in ["app", "exporter", "writer", "preprocessor", "postprocessor"]
+            for category in [
+                "app",
+                "exporter",
+                "writer",
+                "preprocessor",
+                "postprocessor",
+            ]
         }
         accounted_for = {c for category in categories.values() for c in category}
         categories["other"] = [c for c in self._classes_inc_parents() if c not in accounted_for]

@@ -77,7 +77,7 @@ class FilesWriter(WriterBase):
             with open(dest, "wb") as f:
                 f.write(data)
 
-    def write(self, output, resources, notebook_name=None, **kw):
+    def write(self, output, resources, notebook_name=None, newline=None, **kw):
         """
         Consume and write Jinja output to the file system.  Output directory
         is set via the 'build_directory' variable of this instance (a
@@ -147,11 +147,25 @@ class FilesWriter(WriterBase):
         dest_path = Path(build_directory) / dest
 
         # Write conversion results.
-        self.log.info("Writing %i bytes to %s", len(output), dest_path)
+        if "\\\\" in repr(newline):
+            self.log.warning(
+                "Argument 'newline' contains escaped escape characters: %s",
+                format(repr(newline)),
+            )
+
         if isinstance(output, str):
-            with open(dest_path, "w", encoding="utf-8") as f:
+            self.log.info(
+                "Writing %i len string to %s, (repr(newline): %s)",
+                len(output),
+                dest_path,
+                repr(newline),
+            )
+            with open(dest_path, "w", encoding="utf-8", newline=newline) as f:
                 f.write(output)
+
         else:
+            # newline only applies in text mode.
+            self.log.info("Writing %i bytes to %s", len(output), dest_path)
             with open(dest_path, "wb") as f:
                 f.write(output)
 
