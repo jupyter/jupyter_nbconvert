@@ -199,6 +199,11 @@ nbconvert_flags.update(
             },
             """Whether the HTML in Markdown cells and cell outputs should be sanitized..""",
         ),
+        "use-crlf-newline": (
+            {"NbConvertApp": {"newline": "\r\n"}},
+            "Implies CLRF newline.",
+        ),
+        "use-lf-newline": ({"NbConvertApp": {"newline": "\n"}}, "Implies LF newline."),
     }
 )
 
@@ -317,18 +322,18 @@ class NbConvertApp(JupyterApp):
     }
     writer_factory = Type(allow_none=True)
 
-    newline = Unicode(
-        None,
-        help="""The line ending to use when writing text. See builtin:`open`""",
-        allow_none=True,
-    ).tag(config=True)
-
     @observe("writer_class")
     def _writer_class_changed(self, change):
         new = change["new"]
         if new.lower() in self.writer_aliases:
             new = self.writer_aliases[new.lower()]
         self.writer_factory = import_item(new)
+
+    newline = Unicode(
+        None,
+        help="""The line ending to use when writing text, defaults to builtin:`open`""",
+        allow_none=True,
+    ).tag(config=True)
 
     # Post-processor specific variables
     postprocessor = Instance(
@@ -342,7 +347,9 @@ class NbConvertApp(JupyterApp):
         help="""PostProcessor class used to write the
                                     results of the conversion"""
     ).tag(config=True)
-    postprocessor_aliases = {"serve": "nbconvert.postprocessors.serve.ServePostProcessor"}
+    postprocessor_aliases = {
+        "serve": "nbconvert.postprocessors.serve.ServePostProcessor"
+    }
     postprocessor_factory = Type(None, allow_none=True)
 
     @observe("postprocessor_class")
@@ -410,7 +417,9 @@ class NbConvertApp(JupyterApp):
             # Use glob to find matching filenames.  Allow the user to convert
             # notebooks without having to type the extension.
             globbed_files = glob.glob(pattern, recursive=self.recursive_glob)
-            globbed_files.extend(glob.glob(pattern + ".ipynb", recursive=self.recursive_glob))
+            globbed_files.extend(
+                glob.glob(pattern + ".ipynb", recursive=self.recursive_glob)
+            )
             if not globbed_files:
                 self.log.warning("pattern %r matched no files", pattern)
 
@@ -424,7 +433,10 @@ class NbConvertApp(JupyterApp):
         self._writer_class_changed({"new": self.writer_class})
         if self.writer_factory:
             self.writer = self.writer_factory(parent=self)
-            if hasattr(self.writer, "build_directory") and self.writer.build_directory != "":
+            if (
+                hasattr(self.writer, "build_directory")
+                and self.writer.build_directory != ""
+            ):
                 self.use_output_suffix = False
 
     def init_postprocessor(self):
@@ -501,13 +513,17 @@ class NbConvertApp(JupyterApp):
         """
         try:
             if input_buffer is not None:
-                output, resources = self.exporter.from_file(input_buffer, resources=resources)
+                output, resources = self.exporter.from_file(
+                    input_buffer, resources=resources
+                )
             else:
                 output, resources = self.exporter.from_filename(
                     notebook_filename, resources=resources
                 )
         except ConversionException:
-            self.log.error("Error while converting '%s'", notebook_filename, exc_info=True)  # noqa: G201
+            self.log.error(
+                "Error while converting '%s'", notebook_filename, exc_info=True
+            )  # noqa: G201
             self.exit(1)
 
         return output, resources
@@ -576,7 +592,9 @@ class NbConvertApp(JupyterApp):
             argument.
         """
         if input_buffer is None:
-            self.log.info("Converting notebook %s to %s", notebook_filename, self.export_format)
+            self.log.info(
+                "Converting notebook %s to %s", notebook_filename, self.export_format
+            )
         else:
             self.log.info("Converting notebook into %s", self.export_format)
 
@@ -600,7 +618,6 @@ class NbConvertApp(JupyterApp):
                 "Please specify an output format with '--to <format>'."
                 f"\nThe following formats are available: {get_export_names()}"
             )
-            raise ValueError(msg)
 
         # initialize the exporter
         cls = get_exporter(self.export_format)
@@ -648,7 +665,9 @@ class NbConvertApp(JupyterApp):
         preprocessor, postprocessor, and other sections.
         """
         categories = {
-            category: [c for c in self._classes_inc_parents() if category in c.__name__.lower()]
+            category: [
+                c for c in self._classes_inc_parents() if category in c.__name__.lower()
+            ]
             for category in [
                 "app",
                 "exporter",
@@ -658,7 +677,9 @@ class NbConvertApp(JupyterApp):
             ]
         }
         accounted_for = {c for category in categories.values() for c in category}
-        categories["other"] = [c for c in self._classes_inc_parents() if c not in accounted_for]
+        categories["other"] = [
+            c for c in self._classes_inc_parents() if c not in accounted_for
+        ]
 
         header = dedent(
             """
@@ -672,7 +693,9 @@ class NbConvertApp(JupyterApp):
             sections += header.format(section=category.title())
             if category in ["exporter", "preprocessor", "writer"]:
                 sections += f".. image:: _static/{category}_inheritance.png\n\n"
-            sections += "\n".join(c.class_config_rst_doc() for c in categories[category])
+            sections += "\n".join(
+                c.class_config_rst_doc() for c in categories[category]
+            )
 
         return sections.replace(" : ", r" \: ")
 
