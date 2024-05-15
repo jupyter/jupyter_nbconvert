@@ -605,6 +605,7 @@ class NbConvertApp(JupyterApp):
                 "Please specify an output format with '--to <format>'."
                 f"\nThe following formats are available: {get_export_names()}"
             )
+            raise ValueError(msg)
 
         # initialize the exporter
         cls = get_exporter(self.export_format)
