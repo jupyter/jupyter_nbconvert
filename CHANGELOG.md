@@ -1586,6 +1586,7 @@ raw template
 {%- endblock in_prompt -%}
     """
 
+
 exporter_attr = AttrExporter()
 output_attr, _ = exporter_attr.from_notebook_node(nb)
 assert "raw template" in output_attr
