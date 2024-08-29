@@ -10,6 +10,7 @@ import mimetypes
 import os
 from html import escape
 from typing import Any, Callable, Dict, Iterable, Match, Optional, Tuple
+from urllib.parse import unquote
 
 import bs4
 from pygments import highlight
@@ -383,7 +384,7 @@ class IPythonRenderer(HTMLRenderer):
 
         attachment_prefix = "attachment:"
         if src.startswith(attachment_prefix):
-            name = src[len(attachment_prefix) :]
+            name = unquote(src[len(attachment_prefix) :])
 
             if name not in self.attachments:
                 msg = f"missing attachment: {name}"
