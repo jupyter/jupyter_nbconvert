@@ -31,7 +31,7 @@ from nbconvert.filters.widgetsdatatypefilter import WidgetsDataTypeFilter
 from nbconvert.utils.iso639_1 import iso639_1
 
 from .templateexporter import TemplateExporter
-
+from nbconvert.filters.markdown_mistune import extract_titles_from_markdown_input
 
 def find_lab_theme(theme_name):
     """
@@ -256,6 +256,12 @@ class HTMLExporter(TemplateExporter):
         highlight_code = self.filters.get(
             "highlight_code", Highlight2HTML(pygments_lexer=lexer, parent=self)
         )
+        markdown_collection = ""
+        for cell in nb.cells:           
+            if cell.cell_type == 'markdown':
+                markdown_collection = markdown_collection + cell.source + "\n"
+
+        resources["tableofcontents"] = extract_titles_from_markdown_input(markdown_collection)
 
         resources = self._init_resources(resources)
 

@@ -21,10 +21,9 @@ calling super.
 consider calling super even if it is a leaf block, we might insert more blocks later.
 
 #}
-{%- block header -%}
-{%- endblock header -%}
 {%- block body -%}
     {%- block body_header -%}
+        <div>{{"Hello \n\"World\""}}</div>
     {%- endblock body_header -%}
     {%- block body_loop -%}
         {%- for cell in nb.cells -%}

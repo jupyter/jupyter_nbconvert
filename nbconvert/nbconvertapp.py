@@ -54,6 +54,7 @@ nbconvert_aliases.update(
     {
         "to": "NbConvertApp.export_format",
         "template": "TemplateExporter.template_name",
+        "toc": "TemplateExporter.include_tableofcontents",
         "template-file": "TemplateExporter.template_file",
         "theme": "HTMLExporter.theme",
         "sanitize_html": "HTMLExporter.sanitize_html",

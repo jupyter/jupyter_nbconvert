@@ -19,6 +19,8 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from nbconvert.filters.strings import add_anchor
+import mistune
+from mistune.renderers.markdown import MarkdownRenderer
 
 try:  # for Mistune >= 3.0
     from mistune import (  # type:ignore[attr-defined]
@@ -487,3 +489,43 @@ class MarkdownWithMath(Markdown):
 def markdown2html_mistune(source: str) -> str:
     """Convert a markdown string to HTML using mistune"""
     return MarkdownWithMath(renderer=IPythonRenderer(escape=False)).render(source)
+
+# Custom renderer to capture headings
+class HeadingExtractor(MarkdownRenderer):
+    def __init__(self):
+        super().__init__()
+        self.headings = []
+
+    def heading(self, text, level):
+        self.headings.append((level, text))
+        return ''  # We return an empty string to avoid outputting the headings
+
+    
+def extract_titles_from_markdown_input (markdown_input): 
+    # Markdown_input is a single string with all the markdown content concatenated
+    # Initiate list of titles
+    titles_array = []
+    
+    # Instantiate the custom renderer
+    renderer = HeadingExtractor()
+    
+    # Create a Markdown parser with the custom renderer
+    extract_titles = mistune.create_markdown(renderer=renderer)
+   
+
+    # Parse the Markdown
+    extract_titles(markdown_input)
+   
+    # renderer.headings is an array for each markdown element
+    #print(renderer.headings)
+ 
+    # Extracted headings
+    for level, title in renderer.headings:
+        children = title['children']
+        attrs = title['attrs']
+        raw_text= children[0]['raw']
+        level= attrs['level']
+        titles_array.append([level, raw_text])
+    
+    print(titles_array)    
+    return titles_array

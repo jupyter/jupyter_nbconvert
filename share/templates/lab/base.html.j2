@@ -2,6 +2,11 @@
 {% from 'celltags.j2' import celltags %}
 {% from 'cell_id_anchor.j2' import cell_id_anchor %}
 
+{% block tableofcontents %}
+    <div> {{"Table of contents"}} </div>
+
+{% endblock tableofcontents %}
+
 {% block codecell %}
 {%- if not cell.outputs -%}
 {%- set no_output_class="jp-mod-noOutputs" -%}

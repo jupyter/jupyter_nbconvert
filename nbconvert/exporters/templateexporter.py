@@ -680,4 +680,12 @@ class TemplateExporter(Exporter):
     def _init_resources(self, resources):
         resources = super()._init_resources(resources)
         resources["deprecated"] = deprecated
+        resources["include_tableofcontents"] = self.include_tableofcontents
         return resources
+
+    def include_tableofcontents(self, resources):
+        #if len(resources["tableofcontents"])>0:
+            return True
+        #else:
+            #return False
+        
