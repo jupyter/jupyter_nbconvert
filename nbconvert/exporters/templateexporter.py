@@ -684,8 +684,8 @@ class TemplateExporter(Exporter):
         return resources
 
     def include_tableofcontents(self, resources):
-        #if len(resources["tableofcontents"])>0:
-            return True
-        #else:
-            #return False
-        
+        # if len(resources["tableofcontents"])>0:
+        return True
+
+    # else:
+    # return False

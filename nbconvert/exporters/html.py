@@ -26,12 +26,16 @@ from jinja2.loaders import split_template_path
 from nbformat import NotebookNode
 
 from nbconvert.filters.highlight import Highlight2HTML
-from nbconvert.filters.markdown_mistune import IPythonRenderer, MarkdownWithMath
+from nbconvert.filters.markdown_mistune import (
+    IPythonRenderer,
+    MarkdownWithMath,
+    extract_titles_from_markdown_input,
+)
 from nbconvert.filters.widgetsdatatypefilter import WidgetsDataTypeFilter
 from nbconvert.utils.iso639_1 import iso639_1
 
 from .templateexporter import TemplateExporter
-from nbconvert.filters.markdown_mistune import extract_titles_from_markdown_input
+
 
 def find_lab_theme(theme_name):
     """
@@ -257,8 +261,8 @@ class HTMLExporter(TemplateExporter):
             "highlight_code", Highlight2HTML(pygments_lexer=lexer, parent=self)
         )
         markdown_collection = ""
-        for cell in nb.cells:           
-            if cell.cell_type == 'markdown':
+        for cell in nb.cells:
+            if cell.cell_type == "markdown":
                 markdown_collection = markdown_collection + cell.source + "\n"
 
         resources["tableofcontents"] = extract_titles_from_markdown_input(markdown_collection)
