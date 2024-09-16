@@ -126,6 +126,28 @@ a.anchor-link {
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 {% endif %}
 <main>
+{%- for item in resources.tableofcontents -%}
+{%- set (level, text) = item -%}
+{%- if level==1 -%}
+<h1>{{text}}</h1>
+{%- endif -%} 
+{%- if level==2 -%}
+<h2>{{text}}</h2>
+{%- endif -%}
+{%- if level==3 -%}
+<h3>{{text}}</h3>
+{%- endif -%}
+{%- if level==4 -%}
+<h4>{{text}}</h4>
+{%- endif -%}
+{%- if level==5 -%}
+<h5>{{text}}</h5>
+{%- endif -%}
+{%- if level==6 -%}
+<h6>{{text}}</h6>
+{%- endif -%}
+{%- endfor -%}
+
 {%- endblock body_header -%}
 
 {% block body_footer %}

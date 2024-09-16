@@ -2,10 +2,9 @@
 {% from 'celltags.j2' import celltags %}
 {% from 'cell_id_anchor.j2' import cell_id_anchor %}
 
-{% block tableofcontents %}
-    <div> {{"Table of contents"}} </div>
+{%- block body_header -%}
+{%- endblock body_header -%}
 
-{% endblock tableofcontents %}
 
 {% block codecell %}
 {%- if not cell.outputs -%}
