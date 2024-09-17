@@ -126,28 +126,54 @@ a.anchor-link {
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 {% endif %}
 <main>
+{%- block tableofcontents -%}
+<div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
 {%- for item in resources.tableofcontents -%}
-{%- set (level, text) = item -%}
+{%- set (level, text, id, href) = item -%}
 {%- if level==1 -%}
-<h1>{{text}}</h1>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%} 
 {%- if level==2 -%}
-<h2>{{text}}</h2>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%}
 {%- if level==3 -%}
-<h3>{{text}}</h3>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%}
 {%- if level==4 -%}
-<h4>{{text}}</h4>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%}
 {%- if level==5 -%}
-<h5>{{text}}</h5>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%}
 {%- if level==6 -%}
-<h6>{{text}}</h6>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6">
+<a href={{href}}>
+{{text}}
+</a>
+</div>
 {%- endif -%}
 {%- endfor -%}
-
+{% endblock tableofcontents %}
 {%- endblock body_header -%}
 
 {% block body_footer %}
