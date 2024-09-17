@@ -41,7 +41,7 @@ docs/source/config_options.rst
 .vscode
 
 # Downloaded theme files
-#share/templates/lab/static/index.css
+share/templates/lab/static/index.css
 share/templates/lab/static/theme-dark.css
 share/templates/lab/static/theme-light.css
 share/templates/classic/static/style.css
