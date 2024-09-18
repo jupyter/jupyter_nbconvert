@@ -177,6 +177,7 @@ a.anchor-link {
 {% endif %}
 <main>
 {%- block tableofcontents -%}
+{%- if resources.include_tableofcontents -%}
 <div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
 {%- for item in resources.tableofcontents -%}
 {%- set (level, text, id, href) = item -%}
@@ -223,6 +224,7 @@ a.anchor-link {
 </div>
 {%- endif -%}
 {%- endfor -%}
+{%- endif -%}
 {% endblock tableofcontents %}
 {%- endblock body_header -%}
 
