@@ -213,11 +213,17 @@ override this.-=))
 ((* endblock header *))
 
 ((* block body *))
+ 
 \begin{document}
     ((* block predoc *))
     ((* block maketitle *))\maketitle((* endblock maketitle *))
     ((* block abstract *))((* endblock abstract *))
     ((* endblock predoc *))
+    ((* block tableofcontents *))
+      ((* if resources.include_tableofcontents *))
+        \tableofcontents
+      ((* endif *))
+    ((* endblock tableofcontents *))
 
     ((( super() )))
 
