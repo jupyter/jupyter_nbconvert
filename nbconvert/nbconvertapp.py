@@ -54,7 +54,6 @@ nbconvert_aliases.update(
     {
         "to": "NbConvertApp.export_format",
         "template": "TemplateExporter.template_name",
-        "toc": "TemplateExporter.include_tableofcontents",
         "template-file": "TemplateExporter.template_file",
         "theme": "HTMLExporter.theme",
         "sanitize_html": "HTMLExporter.sanitize_html",
@@ -187,6 +186,14 @@ nbconvert_flags.update(
             },
             """Whether the HTML in Markdown cells and cell outputs should be sanitized..""",
         ),
+        "toc": (
+            {
+                "TemplateExporter": {
+                    "include_tableofcontents": True
+                }
+            },
+            "Generate a table of contents in the output (only compatible with HTML and Latex exporters)"
+        ),
     }
 )
 
@@ -216,7 +223,7 @@ class NbConvertApp(JupyterApp):
 
         return classes
 
-    description = Unicode(  # type:ignore[assignment]
+    description = Unicode(# type:ignore[assignment]
         """This application is used to convert notebook files (*.ipynb)
         to various other formats.
 
@@ -335,7 +342,7 @@ class NbConvertApp(JupyterApp):
         if new:
             self.postprocessor_factory = import_item(new)
 
-    export_format = Unicode(  # type:ignore[call-overload]
+    export_format = Unicode(# type:ignore[call-overload]
         allow_none=False,
         help=f"""The export format to be used, either one of the built-in formats
         {get_export_names()}
@@ -671,10 +678,10 @@ class DejavuApp(NbConvertApp):
     def _default_export_format(self):
         return "html"
 
-
 # -----------------------------------------------------------------------------
 # Main entry point
 # -----------------------------------------------------------------------------
+
 
 main = launch_new_instance = NbConvertApp.launch_instance
 dejavu_main = DejavuApp.launch_instance
