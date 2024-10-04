@@ -223,7 +223,7 @@ class NbConvertApp(JupyterApp):
 
         return classes
 
-    description = Unicode(# type:ignore[assignment]
+    description = Unicode(  # type:ignore[assignment]
         """This application is used to convert notebook files (*.ipynb)
         to various other formats.
 
@@ -342,7 +342,7 @@ class NbConvertApp(JupyterApp):
         if new:
             self.postprocessor_factory = import_item(new)
 
-    export_format = Unicode(# type:ignore[call-overload]
+    export_format = Unicode(  # type:ignore[call-overload]
         allow_none=False,
         help=f"""The export format to be used, either one of the built-in formats
         {get_export_names()}

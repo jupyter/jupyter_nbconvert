@@ -203,9 +203,8 @@ class TemplateExporter(Exporter):
     enable_async = Bool(False, help="Enable Jinja async template execution").tag(
         affects_environment=True
     )
-    
     include_tableofcontents = Bool(False, allow_none=True, help="Enable to include a table of contents").tag(
-       config=True, affects_template=True
+        config=True, affects_template=True
     )
 
     _last_template_file = ""
@@ -289,8 +288,7 @@ class TemplateExporter(Exporter):
     ).tag(config=True)
 
     exclude_output = Bool(
-        False,
-        help="This allows you to exclude code cell outputs from all templates if set to True.",
+        False, help="This allows you to exclude code cell outputs from all templates if set to True.",
     ).tag(config=True)
 
     exclude_output_prompt = Bool(
@@ -686,5 +684,3 @@ class TemplateExporter(Exporter):
         resources["deprecated"] = deprecated
         resources["include_tableofcontents"] = self.include_tableofcontents
         return resources
-
-        

@@ -385,7 +385,7 @@ class IPythonRenderer(HTMLRenderer):
 
         attachment_prefix = "attachment:"
         if src.startswith(attachment_prefix):
-            name = src[len(attachment_prefix) :]
+            name = src[len(attachment_prefix):]
 
             if name not in self.attachments:
                 msg = f"missing attachment: {name}"
@@ -485,6 +485,7 @@ class MarkdownWithMath(Markdown):
         """Render the HTML output for a Markdown source."""
         return str(super().__call__(source))
 
+
 def markdown2html_mistune(source: str) -> str:
     """Convert a markdown string to HTML using mistune"""
     return MarkdownWithMath(renderer=IPythonRenderer(escape=False)).render(source)
@@ -500,27 +501,24 @@ class HeadingExtractor(MarkdownRenderer):
         self.headings.append((level, text))
         return ""  # We return an empty string to avoid outputting the headings
 
+
+def extract_titles(renderer):
+    mistune.create_markdown(renderer=renderer)
+
+
 def extract_titles_from_markdown_input(markdown_input):
     # Markdown_input is a single string with all the markdown content concatenated
-    # Initiate list of titles
     titles_array = []
-
-    # Instantiate the custom renderer
     renderer = HeadingExtractor()
-
-    # Create a Markdown parser with the custom renderer
-    extract_titles = mistune.create_markdown(renderer=renderer)
-
-    # Parse the Markdown
     extract_titles(markdown_input)
+    headings = renderer.headings
 
-    # Extracted headings
-    for level, title in renderer.headings: # renderer.headings is an array for each markdown element
+    for item, title in headings:
         children = title["children"]
         attrs = title["attrs"]
         raw_text = children[0]["raw"]
-        level = attrs["level"]
+        header_level = attrs["level"]
         id = raw_text.replace(' ', '-')
-        href= "#" + id
-        titles_array.append([level, raw_text, id, href])
+        href = "#" + id
+        titles_array.append([header_level, raw_text, id, href])
     return titles_array

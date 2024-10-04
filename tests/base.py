@@ -176,15 +176,15 @@ def assert_big_text_equal(a, b, chunk_size=80):
     to give better info than vanilla assertEqual for large text blobs.
     """
     for i in range(0, len(a), chunk_size):
-        chunk_a = a[i : i + chunk_size]
-        chunk_b = b[i : i + chunk_size]
+        chunk_a = a[i: i + chunk_size]
+        chunk_b = b[i: i + chunk_size]
         assert chunk_a == chunk_b, "[offset: %i]\n%r != \n%r" % (i, chunk_a, chunk_b)
 
     if len(a) > len(b):
         raise AssertionError(
-            "Length doesn't match (%i > %i). Extra text:\n%r" % (len(a), len(b), a[len(b) :])
+            "Length doesn't match (%i > %i). Extra text:\n%r" % (len(a), len(b), a[len(b):])
         )
     if len(a) < len(b):
         raise AssertionError(
-            "Length doesn't match (%i < %i). Extra text:\n%r" % (len(a), len(b), a[len(b) :])
+            "Length doesn't match (%i < %i). Extra text:\n%r" % (len(a), len(b), a[len(b):])
         )
