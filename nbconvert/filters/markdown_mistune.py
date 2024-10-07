@@ -23,7 +23,7 @@ from pygments.util import ClassNotFound
 from nbconvert.filters.strings import add_anchor
 
 try:  # for Mistune >= 3.0
-    from mistune import (  # type:ignore[attr-defined]
+    from mistune import (# type:ignore[attr-defined]
         BlockParser,
         BlockState,
         HTMLRenderer,
@@ -38,7 +38,7 @@ try:  # for Mistune >= 3.0
 except ImportError:  # for Mistune >= 2.0
     import re
 
-    from mistune import (  # type: ignore[attr-defined]
+    from mistune import (# type: ignore[attr-defined]
         PLUGINS,
         BlockParser,
         HTMLRenderer,
@@ -269,13 +269,13 @@ class IPythonRenderer(HTMLRenderer):
 
     def __init__(
         self,
-        escape: bool = True,
-        allow_harmful_protocols: bool = True,
-        embed_images: bool = False,
-        exclude_anchor_links: bool = False,
-        anchor_link_text: str = "¶",
-        path: str = "",
-        attachments: Optional[Dict[str, Dict[str, str]]] = None,
+        escape: bool=True,
+        allow_harmful_protocols: bool=True,
+        embed_images: bool=False,
+        exclude_anchor_links: bool=False,
+        anchor_link_text: str="¶",
+        path: str="",
+        attachments: Optional[Dict[str, Dict[str, str]]]=None,
     ):
         """Initialize the renderer."""
         super().__init__(escape, allow_harmful_protocols)
@@ -288,7 +288,7 @@ class IPythonRenderer(HTMLRenderer):
         else:
             self.attachments = {}
 
-    def block_code(self, code: str, info: Optional[str] = None) -> str:
+    def block_code(self, code: str, info: Optional[str]=None) -> str:
         """Handle block code."""
         lang: Optional[str] = ""
         lexer: Optional[Lexer] = None
@@ -361,7 +361,7 @@ class IPythonRenderer(HTMLRenderer):
         """Handle inline math."""
         return f"${self.escape_html(body)}$"
 
-    def image(self, text: str, url: str, title: Optional[str] = None) -> str:
+    def image(self, text: str, url: str, title: Optional[str]=None) -> str:
         """Rendering a image with title and text.
 
         :param text: alt text of the image.
@@ -464,9 +464,9 @@ class MarkdownWithMath(Markdown):
     def __init__(
         self,
         renderer: HTMLRenderer,
-        block: Optional[BlockParser] = None,
-        inline: Optional[InlineParser] = None,
-        plugins: Optional[Iterable[MarkdownPlugin]] = None,
+        block: Optional[BlockParser]=None,
+        inline: Optional[InlineParser]=None,
+        plugins: Optional[Iterable[MarkdownPlugin]]=None,
     ):
         """Initialize the parser."""
         if block is None:
@@ -491,28 +491,31 @@ def markdown2html_mistune(source: str) -> str:
     return MarkdownWithMath(renderer=IPythonRenderer(escape=False)).render(source)
 
 
-# Custom renderer to capture headings
 class HeadingExtractor(MarkdownRenderer):
+    """A renderer to capture headings"""
+
     def __init__(self):
+        """Initialize the class."""
         super().__init__()
         self.headings = []
 
     def heading(self, text, level):
+        """Return an empty string for the headings to avoid outputting them."""
         self.headings.append((level, text))
-        return ""  # We return an empty string to avoid outputting the headings
-
-
-def extract_titles(renderer):
-    mistune.create_markdown(renderer=renderer)
+        return ""
 
 
 def extract_titles_from_markdown_input(markdown_input):
-    # Markdown_input is a single string with all the markdown content concatenated
+    """  Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook"""
+    """ The input argument is markdown_input that is a single string with all the markdown content concatenated """
+    """ The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
     titles_array = []
     renderer = HeadingExtractor()
+    extract_titles = mistune.create_markdown(renderer=renderer)
     extract_titles(markdown_input)
     headings = renderer.headings
-
+    
+    """ Iterate on all headings to get the necessary information on the various titles """
     for __, title in headings:
         children = title["children"]
         attrs = title["attrs"]
