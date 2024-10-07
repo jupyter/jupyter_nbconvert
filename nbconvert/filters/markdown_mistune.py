@@ -385,7 +385,7 @@ class IPythonRenderer(HTMLRenderer):
 
         attachment_prefix = "attachment:"
         if src.startswith(attachment_prefix):
-            name = src[len(attachment_prefix) :]
+            name = src[len(attachment_prefix):]
 
             if name not in self.attachments:
                 msg = f"missing attachment: {name}"

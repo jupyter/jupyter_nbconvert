@@ -354,7 +354,6 @@ class HTMLExporter(TemplateExporter):
             data = data.replace(b"\n", b"").decode("ascii")
             src = f"data:{mime_type};base64,{data}"
             return markupsafe.Markup(src)
-  
 
         resources = super()._init_resources(resources)
         if resources is None:
