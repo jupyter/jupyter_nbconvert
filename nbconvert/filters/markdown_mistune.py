@@ -513,7 +513,7 @@ def extract_titles_from_markdown_input(markdown_input):
     extract_titles(markdown_input)
     headings = renderer.headings
 
-    for item, title in headings:
+    for __, title in headings:
         children = title["children"]
         attrs = title["attrs"]
         raw_text = children[0]["raw"]
