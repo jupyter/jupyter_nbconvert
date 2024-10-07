@@ -181,48 +181,24 @@ a.anchor-link {
 <div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
 {%- for item in resources.tableofcontents -%}
 {%- set (level, text, id, href) = item -%}
+<div
 {%- if level==1 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1">
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1"
+{%- elif level==2 -%}
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2"
+{%- elif level==3 -%}
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3"
+{%- elif level==4 -%}
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4"
+{%- elif level==5 -%}
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5"
+{%- elif level==6 -%}
+class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6"
+{%- endif -%}
+></div>
 <a href={{href}}>
 {{text}}
 </a>
-</div>
-{%- endif -%}
-{%- if level==2 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2">
-<a href={{href}}>
-{{text}}
-</a>
-</div>
-{%- endif -%}
-{%- if level==3 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3">
-<a href={{href}}>
-{{text}}
-</a>
-</div>
-{%- endif -%}
-{%- if level==4 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4">
-<a href={{href}}>
-{{text}}
-</a>
-</div>
-{%- endif -%}
-{%- if level==5 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5">
-<a href={{href}}>
-{{text}}
-</a>
-</div>
-{%- endif -%}
-{%- if level==6 -%}
-<div class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6">
-<a href={{href}}>
-{{text}}
-</a>
-</div>
-{%- endif -%}
 {%- endfor -%}
 {%- endif -%}
 {% endblock tableofcontents %}

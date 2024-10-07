@@ -506,16 +506,16 @@ class HeadingExtractor(MarkdownRenderer):
 
 
 def extract_titles_from_markdown_input(markdown_input):
-    """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook"""
-    """ The input argument is markdown_input that is a single string with all the markdown content concatenated """
-    """ The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
+    """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook
+    The input argument is markdown_input that is a single string with all the markdown content concatenated
+    The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
     titles_array = []
     renderer = HeadingExtractor()
     extract_titles = mistune.create_markdown(renderer=renderer)
     extract_titles(markdown_input)
     headings = renderer.headings
 
-    """ Iterate on all headings to get the necessary information on the various titles """
+    # Iterate on all headings to get the necessary information on the various titles
     for __, title in headings:
         children = title["children"]
         attrs = title["attrs"]
