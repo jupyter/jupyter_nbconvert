@@ -187,12 +187,8 @@ nbconvert_flags.update(
             """Whether the HTML in Markdown cells and cell outputs should be sanitized..""",
         ),
         "toc": (
-            {
-                "TemplateExporter": {
-                    "include_tableofcontents": True
-                }
-            },
-            "Generate a table of contents in the output (only compatible with HTML and Latex exporters)"
+            {"TemplateExporter": {"include_tableofcontents": True}},
+            "Generate a table of contents in the output (only compatible with HTML and Latex exporters)",
         ),
     }
 )
@@ -677,6 +673,7 @@ class DejavuApp(NbConvertApp):
     @default("export_format")
     def _default_export_format(self):
         return "html"
+
 
 # -----------------------------------------------------------------------------
 # Main entry point

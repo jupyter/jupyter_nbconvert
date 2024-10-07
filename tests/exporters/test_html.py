@@ -236,7 +236,7 @@ class TestHTMLExporter(ExportersTestsBase):
             (output, resources) = HTMLExporter(
                 template_name=template, sanitize_html=True
             ).from_filename(self._get_notebook("notebook_inject.ipynb"))
-            
+
             assert "<script>alert('markdown cell')</script>" not in output
             assert "<script>alert('text/markdown output')</script>" not in output
             assert "<script>alert('text/html output')</script>" not in output

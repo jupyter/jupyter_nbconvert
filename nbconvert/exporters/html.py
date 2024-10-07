@@ -268,7 +268,9 @@ class HTMLExporter(TemplateExporter):
         resources = self._init_resources(resources)
         if resources is None:
             resources = {}
-        resources.update({"tableofcontents": extract_titles_from_markdown_input(markdown_collection)})
+        resources.update(
+            {"tableofcontents": extract_titles_from_markdown_input(markdown_collection)}
+        )
 
         filter_data_type = WidgetsDataTypeFilter(
             notebook_metadata=self._nb_metadata, parent=self, resources=resources

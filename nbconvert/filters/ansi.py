@@ -197,7 +197,7 @@ def _ansi2anything(text, converter):
                     pass  # Invalid color specification
             else:
                 pass  # Not a color code
-            chunk, text = text[: m.start()], text[m.end():]
+            chunk, text = text[: m.start()], text[m.end() :]
         else:
             chunk, text = text, ""
 

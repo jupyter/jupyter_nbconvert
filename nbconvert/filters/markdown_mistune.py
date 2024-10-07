@@ -23,7 +23,7 @@ from pygments.util import ClassNotFound
 from nbconvert.filters.strings import add_anchor
 
 try:  # for Mistune >= 3.0
-    from mistune import (# type:ignore[attr-defined]
+    from mistune import (  # type:ignore[attr-defined]
         BlockParser,
         BlockState,
         HTMLRenderer,
@@ -38,7 +38,7 @@ try:  # for Mistune >= 3.0
 except ImportError:  # for Mistune >= 2.0
     import re
 
-    from mistune import (# type: ignore[attr-defined]
+    from mistune import (  # type: ignore[attr-defined]
         PLUGINS,
         BlockParser,
         HTMLRenderer,
@@ -269,13 +269,13 @@ class IPythonRenderer(HTMLRenderer):
 
     def __init__(
         self,
-        escape: bool=True,
-        allow_harmful_protocols: bool=True,
-        embed_images: bool=False,
-        exclude_anchor_links: bool=False,
-        anchor_link_text: str="¶",
-        path: str="",
-        attachments: Optional[Dict[str, Dict[str, str]]]=None,
+        escape: bool = True,
+        allow_harmful_protocols: bool = True,
+        embed_images: bool = False,
+        exclude_anchor_links: bool = False,
+        anchor_link_text: str = "¶",
+        path: str = "",
+        attachments: Optional[Dict[str, Dict[str, str]]] = None,
     ):
         """Initialize the renderer."""
         super().__init__(escape, allow_harmful_protocols)
@@ -288,7 +288,7 @@ class IPythonRenderer(HTMLRenderer):
         else:
             self.attachments = {}
 
-    def block_code(self, code: str, info: Optional[str]=None) -> str:
+    def block_code(self, code: str, info: Optional[str] = None) -> str:
         """Handle block code."""
         lang: Optional[str] = ""
         lexer: Optional[Lexer] = None
@@ -361,7 +361,7 @@ class IPythonRenderer(HTMLRenderer):
         """Handle inline math."""
         return f"${self.escape_html(body)}$"
 
-    def image(self, text: str, url: str, title: Optional[str]=None) -> str:
+    def image(self, text: str, url: str, title: Optional[str] = None) -> str:
         """Rendering a image with title and text.
 
         :param text: alt text of the image.
@@ -385,7 +385,7 @@ class IPythonRenderer(HTMLRenderer):
 
         attachment_prefix = "attachment:"
         if src.startswith(attachment_prefix):
-            name = src[len(attachment_prefix):]
+            name = src[len(attachment_prefix) :]
 
             if name not in self.attachments:
                 msg = f"missing attachment: {name}"
@@ -464,9 +464,9 @@ class MarkdownWithMath(Markdown):
     def __init__(
         self,
         renderer: HTMLRenderer,
-        block: Optional[BlockParser]=None,
-        inline: Optional[InlineParser]=None,
-        plugins: Optional[Iterable[MarkdownPlugin]]=None,
+        block: Optional[BlockParser] = None,
+        inline: Optional[InlineParser] = None,
+        plugins: Optional[Iterable[MarkdownPlugin]] = None,
     ):
         """Initialize the parser."""
         if block is None:
@@ -506,7 +506,7 @@ class HeadingExtractor(MarkdownRenderer):
 
 
 def extract_titles_from_markdown_input(markdown_input):
-    """  Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook"""
+    """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook"""
     """ The input argument is markdown_input that is a single string with all the markdown content concatenated """
     """ The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
     titles_array = []
@@ -514,14 +514,14 @@ def extract_titles_from_markdown_input(markdown_input):
     extract_titles = mistune.create_markdown(renderer=renderer)
     extract_titles(markdown_input)
     headings = renderer.headings
-    
+
     """ Iterate on all headings to get the necessary information on the various titles """
     for __, title in headings:
         children = title["children"]
         attrs = title["attrs"]
         raw_text = children[0]["raw"]
         header_level = attrs["level"]
-        id = raw_text.replace(' ', '-')
+        id = raw_text.replace(" ", "-")
         href = "#" + id
         titles_array.append([header_level, raw_text, id, href])
     return titles_array
