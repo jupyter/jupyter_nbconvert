@@ -266,6 +266,8 @@ class HTMLExporter(TemplateExporter):
                 markdown_collection = markdown_collection + cell.source + "\n"
 
         resources = self._init_resources(resources)
+        if resources is None:
+            resources = {}
         resources.update({"tableofcontents": extract_titles_from_markdown_input(markdown_collection)})
 
         filter_data_type = WidgetsDataTypeFilter(
