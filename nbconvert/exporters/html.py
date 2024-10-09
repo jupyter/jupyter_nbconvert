@@ -266,8 +266,8 @@ class HTMLExporter(TemplateExporter):
                 markdown_collection = markdown_collection + cell.source + "\n"
 
         resources = self._init_resources(resources)
-        print('type:', resources)
-        
+        if resources is None:
+            resources = {}
         resources["tableofcontents"] = extract_titles_from_markdown_input(markdown_collection)
 
         filter_data_type = WidgetsDataTypeFilter(
@@ -356,8 +356,7 @@ class HTMLExporter(TemplateExporter):
             return markupsafe.Markup(src)
 
         resources = super()._init_resources(resources)
-   
-        
+
         resources["theme"] = self.theme
         resources["include_css"] = resources_include_css
         resources["include_lab_theme"] = resources_include_lab_theme

@@ -181,24 +181,25 @@ a.anchor-link {
 <div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
 {%- for item in resources.tableofcontents -%}
 {%- set (level, text, id, href) = item -%}
-<div
+<div class="
 {%- if level==1 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1"
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1
 {%- elif level==2 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2"
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2
 {%- elif level==3 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3"
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3
 {%- elif level==4 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4"
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4
 {%- elif level==5 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5"
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5
 {%- elif level==6 -%}
-class="jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6"
-{%- endif -%}
-></div>
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6
+{%- endif -%}"
+>
 <a href={{href}}>
 {{text}}
 </a>
+</div>
 {%- endfor -%}
 {%- endif -%}
 {% endblock tableofcontents %}
