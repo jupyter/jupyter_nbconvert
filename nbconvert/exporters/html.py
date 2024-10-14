@@ -29,7 +29,7 @@ from nbconvert.filters.highlight import Highlight2HTML
 from nbconvert.filters.markdown_mistune import (
     IPythonRenderer,
     MarkdownWithMath,
-    extract_titles_from_markdown_input,
+    extract_titles_from_notebook_node,
 )
 from nbconvert.filters.widgetsdatatypefilter import WidgetsDataTypeFilter
 from nbconvert.utils.iso639_1 import iso639_1
@@ -260,15 +260,8 @@ class HTMLExporter(TemplateExporter):
         highlight_code = self.filters.get(
             "highlight_code", Highlight2HTML(pygments_lexer=lexer, parent=self)
         )
-        markdown_collection = ""
-        for cell in nb.cells:
-            if cell.cell_type == "markdown":
-                markdown_collection = markdown_collection + cell.source + "\n"
 
         resources = self._init_resources(resources)
-        if resources is None:
-            resources = {}
-        resources["tableofcontents"] = extract_titles_from_markdown_input(markdown_collection)
 
         filter_data_type = WidgetsDataTypeFilter(
             notebook_metadata=self._nb_metadata, parent=self, resources=resources
@@ -372,4 +365,5 @@ class HTMLExporter(TemplateExporter):
         resources["should_sanitize_html"] = self.sanitize_html
         resources["language_code"] = self.language_code
         resources["should_not_encode_svg"] = self.skip_svg_encoding
+        resources["extract_titles_from_nodebook_node"] = extract_titles_from_notebook_node
         return resources

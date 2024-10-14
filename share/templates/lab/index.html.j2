@@ -178,8 +178,9 @@ a.anchor-link {
 <main>
 {%- block tableofcontents -%}
 {%- if resources.include_tableofcontents -%}
+{%- set tableofcontents= resources.extract_titles_from_nodebook_node(nb) -%}
 <div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
-{%- for item in resources.tableofcontents -%}
+{%- for item in tableofcontents -%}
 {%- set (level, text, id, href) = item -%}
 <div class="
 {%- if level==1 -%}

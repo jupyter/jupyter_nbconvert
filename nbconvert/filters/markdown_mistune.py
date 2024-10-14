@@ -21,6 +21,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from nbconvert.filters.strings import add_anchor
+from nbformat import NotebookNode
 
 try:  # for Mistune >= 3.0
     from mistune import (  # type:ignore[attr-defined]
@@ -505,14 +506,20 @@ class HeadingExtractor(MarkdownRenderer):
         return ""
 
 
-def extract_titles_from_markdown_input(markdown_input):
+def extract_titles_from_notebook_node(nb: NotebookNode):
     """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook
-    The input argument is markdown_input that is a single string with all the markdown content concatenated
+    The input argument is the notebooknode from which a single string with all the markdown content concatenated
     The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
+
+    markdown_collection = ""
+    for cell in nb.cells:
+        if cell.cell_type == "markdown":
+            markdown_collection = markdown_collection + cell.source + "\n"
+
     titles_array = []
     renderer = HeadingExtractor()
     extract_titles = mistune.create_markdown(renderer=renderer)
-    extract_titles(markdown_input)
+    extract_titles(markdown_collection)
     headings = renderer.headings
 
     # Iterate on all headings to get the necessary information on the various titles
