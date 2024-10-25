@@ -514,7 +514,35 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
     markdown_collection = ""
     for cell in nb.cells:
         if cell.cell_type == "markdown":
-            markdown_collection = markdown_collection + cell.source + "\n"
+            lines = cell.source.splitlines()
+            for line in lines:
+                if line.startswith('#') and line.count('#') != 1:  # exclude the main title to build the table of content
+                    markdown_collection = markdown_collection + line.strip() + "\n"
+                if line.startswith('<h2>'):
+                    line = line.replace("<h2>", "# ")
+                if line.startswith('<h3>'):
+                    line = line.replace("<h3>", "# ")
+                if line.startswith('<h4>'):
+                    line = line.replace("<h4>", "# ")
+                if line.startswith('<h5>'):
+                    line = line.replace("<h5>", "# ")
+                if line.startswith('<h6>'):
+                    line = line.replace("<h6>", "# ")
+                if '</h2>' in line:
+                    line = line.replace("</h2>", "")
+                    markdown_collection = markdown_collection + line.strip() + "\n"
+                if '</h3>' in line:
+                    line = line.replace("</h3>", "")
+                    markdown_collection = markdown_collection + line.strip() + "\n"
+                if '</h4>' in line:
+                    line = line.replace("</h4>", "")
+                    markdown_collection = markdown_collection + line.strip() + "\n"
+                if '</h5>' in line:
+                    line = line.replace("</h5>", "")
+                    markdown_collection = markdown_collection + line.strip() + "\n"
+                if '</h6>' in line:
+                    line = line.replace("</h6>", "")
+                    markdown_collection = markdown_collection + line.strip() + "\n"
 
     titles_array = []
     renderer = HeadingExtractor()
@@ -531,4 +559,6 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
         id = raw_text.replace(" ", "-")
         href = "#" + id
         titles_array.append([header_level, raw_text, id, href])
+        # print('header_level:', header_level)
+        # print('raw_text:', raw_text)
     return titles_array
