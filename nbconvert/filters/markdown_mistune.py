@@ -519,30 +519,30 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
                 if line.startswith('#') and line.count('#') != 1:  # exclude the main title to build the table of content
                     markdown_collection = markdown_collection + line.strip() + "\n"
                 if line.startswith('<h2>'):
-                    line = line.replace("<h2>", "# ")
+                    newline = line.replace("<h2>", "# ")
                 if line.startswith('<h3>'):
-                    line = line.replace("<h3>", "# ")
+                    newline = line.replace("<h3>", "# ")
                 if line.startswith('<h4>'):
-                    line = line.replace("<h4>", "# ")
+                    newline = line.replace("<h4>", "# ")
                 if line.startswith('<h5>'):
-                    line = line.replace("<h5>", "# ")
+                    newline = line.replace("<h5>", "# ")
                 if line.startswith('<h6>'):
-                    line = line.replace("<h6>", "# ")
+                    newline = line.replace("<h6>", "# ")
                 if '</h2>' in line:
-                    line = line.replace("</h2>", "")
-                    markdown_collection = markdown_collection + line.strip() + "\n"
+                    newline = line.replace("</h2>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
                 if '</h3>' in line:
-                    line = line.replace("</h3>", "")
-                    markdown_collection = markdown_collection + line.strip() + "\n"
+                    newline = line.replace("</h3>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
                 if '</h4>' in line:
-                    line = line.replace("</h4>", "")
-                    markdown_collection = markdown_collection + line.strip() + "\n"
+                    newline = line.replace("</h4>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
                 if '</h5>' in line:
-                    line = line.replace("</h5>", "")
-                    markdown_collection = markdown_collection + line.strip() + "\n"
+                    newline = line.replace("</h5>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
                 if '</h6>' in line:
-                    line = line.replace("</h6>", "")
-                    markdown_collection = markdown_collection + line.strip() + "\n"
+                    newline = line.replace("</h6>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
 
     titles_array = []
     renderer = HeadingExtractor()
