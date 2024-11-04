@@ -50,7 +50,7 @@ except ImportError:  # for Mistune >= 2.0
     MISTUNE_V3 = False
 
     def import_plugin(name: str) -> "MarkdownPlugin":  # type: ignore[misc]
-        """Simple implementation of Mistune V3's import_plugin for V2."""
+        """Simple implementation of Mistune V3"s import_plugin for V2."""
         return PLUGINS[name]  # type: ignore[no-any-return]
 
 
@@ -59,7 +59,7 @@ class InvalidNotebook(Exception):
 
 
 def _dotall(pattern: str) -> str:
-    """Makes the '.' special character match any character inside the pattern, including a newline.
+    """Makes the "." special character match any character inside the pattern, including a newline.
 
     This is implemented with the inline flag `(?s:...)` and is equivalent to using `re.DOTALL`.
     It is useful for LaTeX environments, where line breaks may be present.
@@ -74,7 +74,7 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
         order to avoid other block level rules splitting math sections apart.
 
         It works by matching each multiline math environment as a single paragraph,
-        so that other rules don't think each section is its own paragraph. Inline
+        so that other rules don"t think each section is its own paragraph. Inline
         is ignored here.
         """
 
@@ -198,7 +198,7 @@ else:  # Parsers for Mistune >= 2.0.0 < 3.0.0
             re.DOTALL,
         )
 
-        # Regex for header that doesn't require space after '#'
+        # Regex for header that doesn"t require space after "#"
         AXT_HEADING = re.compile(r" {0,3}(#{1,6})(?!#+)(?: *\n+|([^\n]*?)(?:\n+|\s+?#+\s*\n+))")
 
         # Multiline math must be searched before other rules
@@ -239,7 +239,7 @@ else:  # Parsers for Mistune >= 2.0.0 < 3.0.0
 
         def parse_block_math_tex(self, m: Match[str], state: Any) -> Tuple[str, str]:
             """Parse block text math."""
-            # sometimes the Scanner keeps the final '$$', so we use the
+            # sometimes the Scanner keeps the final "$$", so we use the
             # full matched string and remove the math markers
             text = m.group(0)[2:-2]
             return "block_math", text
@@ -432,7 +432,7 @@ class IPythonRenderer(HTMLRenderer):
         parsed_html = bs4.BeautifulSoup(html, features="html.parser")
         imgs: bs4.ResultSet[bs4.Tag] = parsed_html.find_all("img")
 
-        # Replace img tags's sources by base64 dataurls
+        # Replace img tags"s sources by base64 dataurls
         for img in imgs:
             src = img.attrs.get("src")
             if src is None:
@@ -516,31 +516,34 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
         if cell.cell_type == "markdown":
             lines = cell.source.splitlines()
             for line in lines:
-                if line.startswith('#') and line.count('#') != 1:  # exclude the main title to build the table of content
-                    markdown_collection = markdown_collection + line.strip() + "\n"
-                if line.startswith('<h2>'):
+                if line.startswith("<h1>"):
+                    newline = line.replace("<h1>", "# ")
+                if line.startswith("<h2>"):
                     newline = line.replace("<h2>", "# ")
-                if line.startswith('<h3>'):
+                if line.startswith("<h3>"):
                     newline = line.replace("<h3>", "# ")
-                if line.startswith('<h4>'):
+                if line.startswith("<h4>"):
                     newline = line.replace("<h4>", "# ")
-                if line.startswith('<h5>'):
+                if line.startswith("<h5>"):
                     newline = line.replace("<h5>", "# ")
-                if line.startswith('<h6>'):
+                if line.startswith("<h6>"):
                     newline = line.replace("<h6>", "# ")
-                if '</h2>' in line:
+                if "</h1>" in line:
+                    newline = line.replace("</h1>", "")
+                    markdown_collection = markdown_collection + newline.strip() + "\n"
+                if "</h2>" in line:
                     newline = line.replace("</h2>", "")
                     markdown_collection = markdown_collection + newline.strip() + "\n"
-                if '</h3>' in line:
+                if "</h3>" in line:
                     newline = line.replace("</h3>", "")
                     markdown_collection = markdown_collection + newline.strip() + "\n"
-                if '</h4>' in line:
+                if "</h4>" in line:
                     newline = line.replace("</h4>", "")
                     markdown_collection = markdown_collection + newline.strip() + "\n"
-                if '</h5>' in line:
+                if "</h5>" in line:
                     newline = line.replace("</h5>", "")
                     markdown_collection = markdown_collection + newline.strip() + "\n"
-                if '</h6>' in line:
+                if "</h6>" in line:
                     newline = line.replace("</h6>", "")
                     markdown_collection = markdown_collection + newline.strip() + "\n"
 
@@ -559,6 +562,6 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
         id = raw_text.replace(" ", "-")
         href = "#" + id
         titles_array.append([header_level, raw_text, id, href])
-        # print('header_level:', header_level)
-        # print('raw_text:', raw_text)
+        # print("header_level:", header_level)
+        # print("raw_text:", raw_text)
     return titles_array
