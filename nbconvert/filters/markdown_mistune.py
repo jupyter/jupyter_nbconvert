@@ -516,40 +516,25 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
         if cell.cell_type == "markdown":
             lines = cell.source.splitlines()
             for line in lines:
-                if line.startswith("<h1>"):
-                    newline = line.replace("<h1>", "# ")
-                if line.startswith("<h2>"):
-                    newline = line.replace("<h2>", "# ")
-                if line.startswith("<h3>"):
-                    newline = line.replace("<h3>", "# ")
-                if line.startswith("<h4>"):
-                    newline = line.replace("<h4>", "# ")
-                if line.startswith("<h5>"):
-                    newline = line.replace("<h5>", "# ")
-                if line.startswith("<h6>"):
-                    newline = line.replace("<h6>", "# ")
-                if "</h1>" in line:
-                    newline = line.replace("</h1>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
-                if "</h2>" in line:
-                    newline = line.replace("</h2>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
-                if "</h3>" in line:
-                    newline = line.replace("</h3>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
-                if "</h4>" in line:
-                    newline = line.replace("</h4>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
-                if "</h5>" in line:
-                    newline = line.replace("</h5>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
-                if "</h6>" in line:
-                    newline = line.replace("</h6>", "")
-                    markdown_collection = markdown_collection + newline.strip() + "\n"
+                newline = line.replace("<h1>", "# ")
+                newline = newline.replace("<h2>", "## ")
+                newline = newline.replace("<h3>", "### ")
+                newline = newline.replace("<h4>", "#### ")
+                newline = newline.replace("<h5>", "##### ")
+                newline = newline.replace("<h6>", "###### ")
+                newline = newline.replace("</h1>", "")
+                newline = newline.replace("</h2>", "")
+                newline = newline.replace("</h3>", "")
+                newline = newline.replace("</h4>", "")
+                newline = newline.replace("</h5>", "")
+                newline = newline.replace("</h6>", "")
+            if newline.startswith('#'):
+                markdown_collection = markdown_collection + newline.strip() + "\n"
 
     titles_array = []
     renderer = HeadingExtractor()
     extract_titles = mistune.create_markdown(renderer=renderer)
+    print(markdown_collection)
     extract_titles(markdown_collection)
     headings = renderer.headings
 
