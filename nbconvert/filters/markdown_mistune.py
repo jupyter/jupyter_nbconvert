@@ -13,7 +13,6 @@ from typing import Any, Callable, Dict, Iterable, Match, Optional, Tuple
 
 import bs4
 import mistune
-from mistune.renderers.markdown import MarkdownRenderer
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexer import Lexer
@@ -492,61 +491,27 @@ def markdown2html_mistune(source: str) -> str:
     return MarkdownWithMath(renderer=IPythonRenderer(escape=False)).render(source)
 
 
-class HeadingExtractor(MarkdownRenderer):
-    """A renderer to capture headings"""
-
-    def __init__(self):
-        """Initialize the class."""
-        super().__init__()
-        self.headings = []
-
-    def heading(self, text, level):
-        """Return an empty string for the headings to avoid outputting them."""
-        self.headings.append((level, text))
-        return ""
-
-
 def extract_titles_from_notebook_node(nb: NotebookNode):
     """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook
     The input argument is the notebooknode from which a single string with all the markdown content concatenated
     The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
 
-    markdown_collection = ""
+    cells_html_collection = ""
     for cell in nb.cells:
         if cell.cell_type == "markdown":
-            lines = cell.source.splitlines()
-            for line in lines:
-                newline = line.replace("<h1>", "# ")
-                newline = newline.replace("<h2>", "## ")
-                newline = newline.replace("<h3>", "### ")
-                newline = newline.replace("<h4>", "#### ")
-                newline = newline.replace("<h5>", "##### ")
-                newline = newline.replace("<h6>", "###### ")
-                newline = newline.replace("</h1>", "")
-                newline = newline.replace("</h2>", "")
-                newline = newline.replace("</h3>", "")
-                newline = newline.replace("</h4>", "")
-                newline = newline.replace("</h5>", "")
-                newline = newline.replace("</h6>", "")
-            if newline.startswith('#'):
-                markdown_collection = markdown_collection + newline.strip() + "\n"
+            markdown_source = cell.source
+            html_source = mistune.html(markdown_source)  # convert all the markdown sources to html
+            cells_html_collection = cells_html_collection + html_source + "\n"
 
     titles_array = []
-    renderer = HeadingExtractor()
-    extract_titles = mistune.create_markdown(renderer=renderer)
-    print(markdown_collection)
-    extract_titles(markdown_collection)
-    headings = renderer.headings
+    html_collection = bs4.BeautifulSoup(cells_html_collection, "html.parser")
+    headings = html_collection.select("h1, h2, h3, h4, h5, h6")
 
     # Iterate on all headings to get the necessary information on the various titles
-    for __, title in headings:
-        children = title["children"]
-        attrs = title["attrs"]
-        raw_text = children[0]["raw"]
-        header_level = attrs["level"]
-        id = raw_text.replace(" ", "-")
+    for heading in headings:
+        text = heading.get_text().lstrip().rstrip()
+        level = int(heading.name[1])
+        id = text.replace(" ", "-")
         href = "#" + id
-        titles_array.append([header_level, raw_text, id, href])
-        # print("header_level:", header_level)
-        # print("raw_text:", raw_text)
+        titles_array.append([str(heading), level, href])
     return titles_array
