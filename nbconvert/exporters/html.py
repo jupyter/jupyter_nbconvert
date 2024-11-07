@@ -26,7 +26,11 @@ from jinja2.loaders import split_template_path
 from nbformat import NotebookNode
 
 from nbconvert.filters.highlight import Highlight2HTML
-from nbconvert.filters.markdown_mistune import IPythonRenderer, MarkdownWithMath
+from nbconvert.filters.markdown_mistune import (
+    IPythonRenderer,
+    MarkdownWithMath,
+    extract_titles_from_notebook_node,
+)
 from nbconvert.filters.widgetsdatatypefilter import WidgetsDataTypeFilter
 from nbconvert.utils.iso639_1 import iso639_1
 
@@ -345,6 +349,7 @@ class HTMLExporter(TemplateExporter):
             return markupsafe.Markup(src)
 
         resources = super()._init_resources(resources)
+
         resources["theme"] = self.theme
         resources["include_css"] = resources_include_css
         resources["include_lab_theme"] = resources_include_lab_theme
@@ -360,4 +365,5 @@ class HTMLExporter(TemplateExporter):
         resources["should_sanitize_html"] = self.sanitize_html
         resources["language_code"] = self.language_code
         resources["should_not_encode_svg"] = self.skip_svg_encoding
+        resources["extract_titles_from_nodebook_node"] = extract_titles_from_notebook_node
         return resources

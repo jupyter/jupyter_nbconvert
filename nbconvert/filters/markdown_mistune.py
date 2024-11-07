@@ -12,6 +12,8 @@ from html import escape
 from typing import Any, Callable, Dict, Iterable, Match, Optional, Tuple
 
 import bs4
+import mistune
+from nbformat import NotebookNode
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexer import Lexer
@@ -47,7 +49,7 @@ except ImportError:  # for Mistune >= 2.0
     MISTUNE_V3 = False
 
     def import_plugin(name: str) -> "MarkdownPlugin":  # type: ignore[misc]
-        """Simple implementation of Mistune V3's import_plugin for V2."""
+        """Simple implementation of Mistune V3"s import_plugin for V2."""
         return PLUGINS[name]  # type: ignore[no-any-return]
 
 
@@ -56,7 +58,7 @@ class InvalidNotebook(Exception):
 
 
 def _dotall(pattern: str) -> str:
-    """Makes the '.' special character match any character inside the pattern, including a newline.
+    """Makes the "." special character match any character inside the pattern, including a newline.
 
     This is implemented with the inline flag `(?s:...)` and is equivalent to using `re.DOTALL`.
     It is useful for LaTeX environments, where line breaks may be present.
@@ -71,7 +73,7 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
         order to avoid other block level rules splitting math sections apart.
 
         It works by matching each multiline math environment as a single paragraph,
-        so that other rules don't think each section is its own paragraph. Inline
+        so that other rules don"t think each section is its own paragraph. Inline
         is ignored here.
         """
 
@@ -195,7 +197,7 @@ else:  # Parsers for Mistune >= 2.0.0 < 3.0.0
             re.DOTALL,
         )
 
-        # Regex for header that doesn't require space after '#'
+        # Regex for header that doesn"t require space after "#"
         AXT_HEADING = re.compile(r" {0,3}(#{1,6})(?!#+)(?: *\n+|([^\n]*?)(?:\n+|\s+?#+\s*\n+))")
 
         # Multiline math must be searched before other rules
@@ -236,7 +238,7 @@ else:  # Parsers for Mistune >= 2.0.0 < 3.0.0
 
         def parse_block_math_tex(self, m: Match[str], state: Any) -> Tuple[str, str]:
             """Parse block text math."""
-            # sometimes the Scanner keeps the final '$$', so we use the
+            # sometimes the Scanner keeps the final "$$", so we use the
             # full matched string and remove the math markers
             text = m.group(0)[2:-2]
             return "block_math", text
@@ -429,7 +431,7 @@ class IPythonRenderer(HTMLRenderer):
         parsed_html = bs4.BeautifulSoup(html, features="html.parser")
         imgs: bs4.ResultSet[bs4.Tag] = parsed_html.find_all("img")
 
-        # Replace img tags's sources by base64 dataurls
+        # Replace img tags"s sources by base64 dataurls
         for img in imgs:
             src = img.attrs.get("src")
             if src is None:
@@ -487,3 +489,30 @@ class MarkdownWithMath(Markdown):
 def markdown2html_mistune(source: str) -> str:
     """Convert a markdown string to HTML using mistune"""
     return MarkdownWithMath(renderer=IPythonRenderer(escape=False)).render(source)
+
+
+def extract_titles_from_notebook_node(nb: NotebookNode):
+    """Create a Markdown parser with the HeadingExtractor renderer to collect all the headings of a notebook
+    The input argument is the notebooknode from which a single string with all the markdown content concatenated
+    The output is an array containing information about the headings such as their level, their text content, an identifier and a href that can be used in case of html converter.s"""
+
+    cells_html_collection = ""
+    for cell in nb.cells:
+        if cell.cell_type == "markdown":
+            markdown_source = cell.source
+            html_source = mistune.html(markdown_source)  # convert all the markdown sources to html
+            cells_html_collection = cells_html_collection + html_source + "\n"
+
+    titles_array = []
+    html_collection = bs4.BeautifulSoup(cells_html_collection, "html.parser")
+    headings = html_collection.select("h1, h2, h3, h4, h5, h6")
+
+    # Iterate on all headings to get the necessary information on the various titles
+    for heading in headings:
+        text = heading.get_text().lstrip().rstrip()
+        level = int(heading.name[1])
+        header_id = text.replace(" ", "-")
+        heading["id"] = header_id
+        href = "#" + header_id
+        titles_array.append([str(heading), level, href])
+    return titles_array

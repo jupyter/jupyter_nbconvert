@@ -100,6 +100,56 @@ a.anchor-link {
     display: block;
   }
 }
+/* Table of Contents for the html exporter */
+.jp-RenderedHTMLTOC-Title {
+  font-family: var(--jp-content-font-family);
+  font-size: 14px;
+  margin: 16px 0;
+  padding-left: 64px;
+  font-weight: bold;
+}
+
+.jp-RenderedHTMLTOC-Item-h1 {
+  font-family: var(--jp-content-font-family);
+  font-size: 14px;
+  margin: 0;
+  padding-left: 88px;
+}
+
+.jp-RenderedHTMLTOC-Item-h2 {
+  font-family: var(--jp-content-font-family);
+  font-size: 12px;
+  margin: 4px;
+  padding-left: 112px;
+}
+
+.jp-RenderedHTMLTOC-Item-h3 {
+  font-family: var(--jp-content-font-family);
+  font-size:10px;
+  margin: 4px;
+  padding-left: 136px;
+}
+
+.jp-RenderedHTMLTOC-Item-h4 {
+  font-family: var(--jp-content-font-family);
+  font-size: 8px;
+  margin: 4px;
+  padding-left: 160px;
+}
+
+.jp-RenderedHTMLTOC-Item-h5 {
+  font-family: var(--jp-content-font-family);
+  font-size: 7px;
+  margin: 4px;
+  padding-left: 184px;
+}
+
+.jp-RenderedHTMLTOC-Item-h6 {
+  font-family: var(--jp-content-font-family);
+  font-size: 6px;
+  margin: 2px;
+  padding-left: 208px;
+}
 </style>
 
 {% endblock notebook_css %}
@@ -126,6 +176,34 @@ a.anchor-link {
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 {% endif %}
 <main>
+{%- block tableofcontents -%}
+{%- if resources.include_tableofcontents -%}
+{%- set tableofcontents= resources.extract_titles_from_nodebook_node(nb) -%}
+<div class="jp-RenderedHTMLTOC-Title">Table of contents</div>
+{%- for item in tableofcontents -%}
+{%- set (header, level, href) = item -%}
+<div class="
+{%- if level==1 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h1
+{%- elif level==2 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h2
+{%- elif level==3 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h3
+{%- elif level==4 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h4
+{%- elif level==5 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h5
+{%- elif level==6 -%}
+jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6
+{%- endif -%}"
+>
+<a href={{href}}>
+{{header | safe}}
+</a>
+</div>
+{%- endfor -%}
+{%- endif -%}
+{% endblock tableofcontents %}
 {%- endblock body_header -%}
 
 {% block body_footer %}

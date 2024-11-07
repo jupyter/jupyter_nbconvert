@@ -185,7 +185,6 @@ class TestHTMLExporter(ExportersTestsBase):
             (output, resources) = HTMLExporter(template_name=template).from_filename(
                 self._get_notebook("notebook_inject.ipynb")
             )
-
             # Check injection in the metadata.title of the Notebook
             assert "<script>alert('title')</script>" not in output
 
