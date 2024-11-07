@@ -198,7 +198,7 @@ jp-RenderedHTMLCommon jp-RenderedHTMLTOC-Item-h6
 {%- endif -%}"
 >
 <a href={{href}}>
-{{header}}
+{{header | safe}}
 </a>
 </div>
 {%- endfor -%}

@@ -506,12 +506,13 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
     titles_array = []
     html_collection = bs4.BeautifulSoup(cells_html_collection, "html.parser")
     headings = html_collection.select("h1, h2, h3, h4, h5, h6")
-
+   
     # Iterate on all headings to get the necessary information on the various titles
     for heading in headings:
         text = heading.get_text().lstrip().rstrip()
         level = int(heading.name[1])
-        id = text.replace(" ", "-")
-        href = "#" + id
+        header_id = text.replace(" ", "-")
+        heading["id"] = header_id
+        href = "#" + header_id
         titles_array.append([str(heading), level, href])
     return titles_array
