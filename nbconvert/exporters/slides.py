@@ -41,7 +41,7 @@ class _RevealMetadataPreprocessor(Preprocessor):
 
         in_fragment = False
 
-        for index, cell in enumerate(nb.cells[first_slide_ix + 1:], start=(first_slide_ix + 1)):
+        for index, cell in enumerate(nb.cells[first_slide_ix + 1 :], start=(first_slide_ix + 1)):
             previous_cell = nb.cells[index - 1]
 
             # Slides are <section> elements in the HTML, subslides (the vertically

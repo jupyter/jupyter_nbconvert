@@ -13,6 +13,7 @@ from typing import Any, Callable, Dict, Iterable, Match, Optional, Tuple
 
 import bs4
 import mistune
+from nbformat import NotebookNode
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexer import Lexer
@@ -20,7 +21,6 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from nbconvert.filters.strings import add_anchor
-from nbformat import NotebookNode
 
 try:  # for Mistune >= 3.0
     from mistune import (  # type:ignore[attr-defined]
@@ -385,7 +385,7 @@ class IPythonRenderer(HTMLRenderer):
 
         attachment_prefix = "attachment:"
         if src.startswith(attachment_prefix):
-            name = src[len(attachment_prefix):]
+            name = src[len(attachment_prefix) :]
 
             if name not in self.attachments:
                 msg = f"missing attachment: {name}"
@@ -506,7 +506,7 @@ def extract_titles_from_notebook_node(nb: NotebookNode):
     titles_array = []
     html_collection = bs4.BeautifulSoup(cells_html_collection, "html.parser")
     headings = html_collection.select("h1, h2, h3, h4, h5, h6")
-   
+
     # Iterate on all headings to get the necessary information on the various titles
     for heading in headings:
         text = heading.get_text().lstrip().rstrip()
