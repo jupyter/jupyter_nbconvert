@@ -9,7 +9,6 @@ on:
     types: [published]
 
 jobs:
-
   check_release:
     runs-on: ubuntu-latest
     steps:
