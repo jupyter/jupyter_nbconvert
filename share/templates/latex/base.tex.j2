@@ -20,8 +20,6 @@ override this.-=))
     \usepackage{graphicx}
     % Keep aspect ratio if custom image width or height is specified
     \setkeys{Gin}{keepaspectratio}
-    % Maintain compatibility with old templates. Remove in nbconvert 6.0
-    \let\Oldincludegraphics\includegraphics
     % Ensure that by default, figures have no caption (until we provide a
     % proper Figure object with a Caption API and a way to capture that
     % in the conversion process - todo).
@@ -93,6 +91,23 @@ override this.-=))
                                 % normalem makes italics be italics, not underlines
     \usepackage{soul}      % strikethrough (\st) support for pandoc >= 3.0.0
     \usepackage{mathrsfs}
+    \usepackage{svg} % enable support for rendering SVGs via Inkscape
+    \makeatletter
+    % Hook to includgraphics to pass SVGs to \includesvg
+    \let\includegraphics@original\includegraphics
+    % Hook
+    \renewcommand{\includegraphics}[2][]{%
+    \def\svgextension{svg}
+    \filename@parse{#2}%
+    \ifx\filename@ext\svgextension
+      \includesvg[width=\textwidth,#1]{#2}
+    \else
+      \includegraphics@original[#1]{#2}
+    \fi
+    }%
+    \makeatother
+    % Maintain compatibility with old templates. Remove in nbconvert 6.0
+    \let\Oldincludegraphics\includegraphics
     ((* endblock packages *))
 
     ((* block definitions *))
