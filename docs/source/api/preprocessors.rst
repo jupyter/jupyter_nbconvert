@@ -36,6 +36,8 @@ Converting text
 
 .. autoclass:: HighlightMagicsPreprocessor
 
+.. autoclass:: NumberedHeadingsPreprocessor
+
 Metadata and header control
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

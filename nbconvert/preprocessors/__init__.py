@@ -13,6 +13,7 @@ from .extractattachments import ExtractAttachmentsPreprocessor
 from .extractoutput import ExtractOutputPreprocessor
 from .highlightmagics import HighlightMagicsPreprocessor
 from .latex import LatexPreprocessor
+from .numbered_headings import NumberedHeadingsPreprocessor
 from .regexremove import RegexRemovePreprocessor
 from .svg2pdf import SVG2PDFPreprocessor
 from .tagremove import TagRemovePreprocessor
@@ -30,6 +31,7 @@ __all__ = [
     "ExtractOutputPreprocessor",
     "HighlightMagicsPreprocessor",
     "LatexPreprocessor",
+    "NumberedHeadingsPreprocessor",
     "RegexRemovePreprocessor",
     "SVG2PDFPreprocessor",
     "TagRemovePreprocessor",
