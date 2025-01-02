@@ -176,7 +176,6 @@ jobs:
       - test_minimum_versions
       - test_prereleases
       - check_links
-      - check_release
       - test_sdist
     runs-on: ubuntu-latest
     steps:
