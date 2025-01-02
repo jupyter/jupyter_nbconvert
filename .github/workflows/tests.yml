@@ -114,6 +114,28 @@ jobs:
           PIP_CONSTRAINT= hatch env run -e test -- pip install 'pip>=24.2'
           xvfb-run --auto-servernum hatch run test:nowarn || xvfb-run --auto-servernum hatch run test:nowarn --lf
 
+  test_mistune_30:
+    name: Test Mistune 3.0
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install texlive-plain-generic inkscape texlive-xetex latexmk
+          sudo apt-get install xvfb x11-utils libxkbcommon-x11-0  libxcb-xinerama0 python3-pyqt5
+
+          # pandoc is not up to date in the ubuntu repos, so we install directly
+          wget https://github.com/jgm/pandoc/releases/download/2.9.2.1/pandoc-2.9.2.1-1-amd64.deb && sudo dpkg -i pandoc-2.9.2.1-1-amd64.deb
+
+      - name: Run tests
+        run: |
+          hatch env run -e test -- pip install 'mistune~=3.0.0'
+          xvfb-run --auto-servernum hatch run test:nowarn || xvfb-run --auto-servernum hatch run test:nowarn --lf
+
   test_prereleases:
     name: Test Prereleases
     runs-on: ubuntu-latest

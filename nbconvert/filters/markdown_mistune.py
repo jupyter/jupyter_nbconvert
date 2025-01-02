@@ -9,7 +9,7 @@ import base64
 import mimetypes
 import os
 from html import escape
-from typing import Any, Callable, Dict, Iterable, Match, Optional, Tuple
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, Iterable, Match, Optional, Protocol, Tuple
 
 import bs4
 from pygments import highlight
@@ -19,6 +19,19 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from nbconvert.filters.strings import add_anchor
+
+if TYPE_CHECKING:
+    try:
+        from mistune.plugins import Plugin
+    except ImportError:
+
+        class Plugin(Protocol):  # type: ignore[no-redef]
+            """Mistune plugin interface."""
+
+            def __call__(self, markdown: "Markdown") -> None:
+                """Apply the plugin on the markdown document."""
+                ...
+
 
 try:  # for Mistune >= 3.0
     from mistune import (  # type:ignore[attr-defined]
@@ -32,6 +45,7 @@ try:  # for Mistune >= 3.0
     )
 
     MISTUNE_V3 = True
+    MISTUNE_V3_ATX = "atx_heading" in BlockParser.SPECIFICATION
 
 except ImportError:  # for Mistune >= 2.0
     import re
@@ -45,8 +59,9 @@ except ImportError:  # for Mistune >= 2.0
     )
 
     MISTUNE_V3 = False
+    MISTUNE_V3_ATX = False
 
-    def import_plugin(name: str) -> "MarkdownPlugin":  # type: ignore[misc]
+    def import_plugin(name: str) -> "Plugin":  # type: ignore[misc]
         """Simple implementation of Mistune V3's import_plugin for V2."""
         return PLUGINS[name]  # type: ignore[no-any-return]
 
@@ -75,8 +90,10 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
         is ignored here.
         """
 
-        AXT_HEADING_WITHOUT_LEADING_SPACES = (
-            r"^ {0,3}(?P<axt_1>#{1,6})(?!#+)(?P<axt_2>[ \t]*(.*?)?)$"
+        ATX_HEADING_WITHOUT_LEADING_SPACES = (
+            r"^ {0,3}(?P<atx_1>#{1,6})(?!#+)(?P<atx_2>[ \t]*(.*?)?)$"
+            if MISTUNE_V3_ATX
+            else r"^ {0,3}(?P<axt_1>#{1,6})(?!#+)(?P<axt_2>[ \t]*(.*?)?)$"
         )
 
         MULTILINE_MATH = _dotall(
@@ -92,12 +109,14 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
 
         SPECIFICATION = {
             **BlockParser.SPECIFICATION,
-            "axt_heading": AXT_HEADING_WITHOUT_LEADING_SPACES,
+            (
+                "atx_heading" if MISTUNE_V3_ATX else "axt_heading"
+            ): ATX_HEADING_WITHOUT_LEADING_SPACES,
             "multiline_math": MULTILINE_MATH,
         }
 
         # Multiline math must be searched before other rules
-        DEFAULT_RULES: Tuple[str, ...] = ("multiline_math", *BlockParser.DEFAULT_RULES)  # type: ignore[assignment]
+        DEFAULT_RULES: ClassVar[Iterable[str]] = ("multiline_math", *BlockParser.DEFAULT_RULES)  # type: ignore[assignment]
 
         def parse_multiline_math(self, m: Match[str], state: BlockState) -> int:
             """Send mutiline math as a single paragraph to MathInlineParser."""
@@ -139,7 +158,7 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
         }
 
         # Block math must be matched first, and all math must come before text
-        DEFAULT_RULES: Tuple[str, ...] = (
+        DEFAULT_RULES: ClassVar[Iterable[str]] = (
             "block_math_tex",
             "block_math_latex",
             "inline_math_tex",
@@ -442,10 +461,6 @@ class IPythonRenderer(HTMLRenderer):
         return str(parsed_html)
 
 
-# Represents an already imported plugin for Mistune
-MarkdownPlugin = Callable[[Markdown], None]
-
-
 class MarkdownWithMath(Markdown):
     """Markdown text with math enabled."""
 
@@ -464,7 +479,7 @@ class MarkdownWithMath(Markdown):
         renderer: HTMLRenderer,
         block: Optional[BlockParser] = None,
         inline: Optional[InlineParser] = None,
-        plugins: Optional[Iterable[MarkdownPlugin]] = None,
+        plugins: Optional[Iterable["Plugin"]] = None,
     ):
         """Initialize the parser."""
         if block is None:
