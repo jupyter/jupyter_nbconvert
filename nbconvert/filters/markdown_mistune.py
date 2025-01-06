@@ -317,7 +317,7 @@ class IPythonRenderer(HTMLRenderer):
             try:
                 if info.strip().split(None, 1):
                     lang = info.strip().split(maxsplit=1)[0]
-                    lexer = get_lexer_by_name(lang, stripall=True)
+                    lexer = get_lexer_by_name(lang, stripall=False)
             except ClassNotFound:
                 code = f"{lang}\n{code}"
                 lang = None

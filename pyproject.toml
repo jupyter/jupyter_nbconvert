@@ -224,7 +224,6 @@ ignore = [
   "T201",   # `print` found
   "RUF012", # Mutable class attributes should be annotated
   "UP031",  # Use format specifiers instead of percent format
-
 ]
 unfixable = [
   "T201",   # Don't touch print statements
@@ -253,6 +252,7 @@ unfixable = [
 "nbconvert/__init__.py" = ["F401", "F403"]
 # PLR2004 Magic value used in comparison
 "nbconvert/filters/ansi.py" = ["PLR2004"]
+"tests/exporters/test_html.py" = ["RUF001"]
 
 [tool.interrogate]
 ignore-init-module=true

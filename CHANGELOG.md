@@ -20,7 +20,7 @@
 
 ### Maintenance and upkeep improvements
 
-- enhancement dep-chain: directly depend on bleach[css], instead of pulling in tinycss2. [#2166](https://github.com/jupyter/nbconvert/pull/2166) ([@xiacunshun](https://github.com/xiacunshun))
+- enhancement dep-chain: directly depend on bleach\[css\], instead of pulling in tinycss2. [#2166](https://github.com/jupyter/nbconvert/pull/2166) ([@xiacunshun](https://github.com/xiacunshun))
 - chore: update pre-commit hooks [#2146](https://github.com/jupyter/nbconvert/pull/2146) ([@pre-commit-ci](https://github.com/pre-commit-ci))
 
 ### Contributors to this release
@@ -1612,6 +1612,7 @@ class AttrExporter(TemplateExporter):
 raw template
 {%- endblock in_prompt -%}
     """
+
 
 exporter_attr = AttrExporter()
 output_attr, _ = exporter_attr.from_notebook_node(nb)

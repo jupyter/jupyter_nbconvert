@@ -179,7 +179,7 @@ def _pygments_highlight(source, output_formatter, language="ipython", metadata=N
 
     if lexer is None:
         try:
-            lexer = get_lexer_by_name(language, stripall=True)
+            lexer = get_lexer_by_name(language, stripall=False)
         except ClassNotFound:
             warn("No lexer found for language %r. Treating as plain text." % language, stacklevel=2)
             from pygments.lexers.special import TextLexer
