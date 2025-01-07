@@ -27,12 +27,12 @@ except ImportError as e:
 from .pandoc import convert_pandoc
 
 __all__ = [
+    "markdown2asciidoc",
     "markdown2html",
-    "markdown2html_pandoc",
     "markdown2html_mistune",
+    "markdown2html_pandoc",
     "markdown2latex",
     "markdown2rst",
-    "markdown2asciidoc",
 ]
 
 

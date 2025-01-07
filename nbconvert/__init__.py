@@ -32,18 +32,9 @@ except ModuleNotFoundError:
 
 
 __all__ = [
-    "__version__",
-    "version_info",
-    "filters",
-    "postprocessors",
-    "preprocessors",
-    "writers",
     "ASCIIDocExporter",
-    "ExporterNameError",
-    "export",
-    "get_export_names",
-    "get_exporter",
     "Exporter",
+    "ExporterNameError",
     "FilenameExtension",
     "HTMLExporter",
     "LatexExporter",
@@ -58,4 +49,13 @@ __all__ = [
     "SlidesExporter",
     "TemplateExporter",
     "WebPDFExporter",
+    "__version__",
+    "export",
+    "filters",
+    "get_export_names",
+    "get_exporter",
+    "postprocessors",
+    "preprocessors",
+    "version_info",
+    "writers",
 ]

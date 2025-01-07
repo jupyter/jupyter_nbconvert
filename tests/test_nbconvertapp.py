@@ -151,7 +151,7 @@ class TestNbConvertApp(TestsBase):
             assert os.path.isfile("notebook with spaces.pdf")
 
     @flaky
-    @pytest.mark.network()
+    @pytest.mark.network
     @pytest.mark.skipif(not PLAYWRIGHT_INSTALLED, reason="Playwright not installed")
     def test_webpdf_with_chromium(self):
         """
