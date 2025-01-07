@@ -18,18 +18,18 @@ from .svg2pdf import SVG2PDFPreprocessor
 from .tagremove import TagRemovePreprocessor
 
 __all__ = [
+    "CSSHTMLHeaderPreprocessor",
     "CellExecutionError",
-    "Preprocessor",
     "ClearMetadataPreprocessor",
     "ClearOutputPreprocessor",
     "CoalesceStreamsPreprocessor",
     "ConvertFiguresPreprocessor",
-    "CSSHTMLHeaderPreprocessor",
     "ExecutePreprocessor",
     "ExtractAttachmentsPreprocessor",
     "ExtractOutputPreprocessor",
     "HighlightMagicsPreprocessor",
     "LatexPreprocessor",
+    "Preprocessor",
     "RegexRemovePreprocessor",
     "SVG2PDFPreprocessor",
     "TagRemovePreprocessor",

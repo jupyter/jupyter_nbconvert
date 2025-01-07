@@ -23,22 +23,22 @@ from defusedxml import ElementTree  # type:ignore[import-untyped]
 from nbconvert.preprocessors.sanitize import _get_default_css_sanitizer
 
 __all__ = [
-    "wrap_text",
-    "html2text",
-    "clean_html",
     "add_anchor",
-    "strip_dollars",
-    "strip_files_prefix",
-    "comment_lines",
-    "get_lines",
-    "ipython2python",
-    "posix_path",
-    "path2url",
     "add_prompts",
     "ascii_only",
+    "clean_html",
+    "comment_lines",
+    "get_lines",
+    "html2text",
+    "ipython2python",
+    "path2url",
+    "posix_path",
     "prevent_list_blocks",
+    "strip_dollars",
+    "strip_files_prefix",
     "strip_trailing_newline",
     "text_base64",
+    "wrap_text",
 ]
 
 

@@ -33,7 +33,7 @@ class TestWebPDFExporter(ExportersTestsBase):
 
     exporter_class = WebPDFExporter  # type:ignore
 
-    @pytest.mark.network()
+    @pytest.mark.network
     def test_export(self):
         """
         Can a TemplateExporter export something?

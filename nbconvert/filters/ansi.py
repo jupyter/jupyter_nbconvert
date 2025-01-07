@@ -7,7 +7,7 @@ import re
 
 import markupsafe
 
-__all__ = ["strip_ansi", "ansi2html", "ansi2latex"]
+__all__ = ["ansi2html", "ansi2latex", "strip_ansi"]
 
 _ANSI_RE = re.compile("\x1b\\[(.*?)([@-~])")
 
