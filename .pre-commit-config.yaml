@@ -4,7 +4,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-case-conflict
       - id: check-ast
@@ -21,12 +21,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.4
+    rev: 0.30.0
     hooks:
       - id: check-github-workflows
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.17
+    rev: 0.7.21
     hooks:
       - id: mdformat
         additional_dependencies:
@@ -39,7 +39,7 @@ repos:
         types_or: [yaml, html, json]
 
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: "1.16.0"
+    rev: "1.19.1"
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==23.7.0]
@@ -51,7 +51,7 @@ repos:
         args: ["-L", "sur,nd,assertin"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.10.0"
+    rev: "v1.14.1"
     hooks:
       - id: mypy
         files: "^nbconvert"
@@ -81,7 +81,7 @@ repos:
       - id: rst-inline-touching-normal
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.8.6
     hooks:
       - id: ruff
         types_or: [python, jupyter]
@@ -90,7 +90,7 @@ repos:
         types_or: [python, jupyter]
 
   - repo: https://github.com/scientific-python/cookie
-    rev: "2024.04.23"
+    rev: "2024.08.19"
     hooks:
       - id: sp-repo-review
         additional_dependencies: ["repo-review[cli]"]
