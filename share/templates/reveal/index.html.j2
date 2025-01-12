@@ -9,6 +9,10 @@
 {% set reveal_width = resources.reveal.width | default('960', true) %}
 {% set reveal_height = resources.reveal.height | default('700', true) %}
 {% set reveal_scroll = resources.reveal.scroll | default(false, true) | json_dumps %}
+{% set reveal_overlay = resources.reveal.overlay | default('', true) %}
+{% set reveal_header = resources.reveal.header | default('', true) %}
+{% set reveal_backimage = resources.reveal.backimage | default('', true) %}
+{% set reveal_footer = resources.reveal.footer | default('', true) %}
 
 {%- block header -%}
 <!DOCTYPE html>
@@ -122,6 +126,21 @@ a.anchor-link {
 {% endif %}
 <main>
 <div class="reveal">
+
+{% if reveal_overlay != '' %}
+<div id='rise-overlay'>{{ reveal_overlay }}</div>
+{% else %}
+{% if reveal_header != '' %}
+<div id='rise-header'>{{ reveal_header }}</div>
+{% endif %}
+{% if reveal_backimage != '' %}
+<img id='rise-backimage' src="{{ reveal_backimage }}" />
+{% endif %}
+{% if reveal_footer != '' %}
+<div id='rise-footer'>{{ reveal_footer }}</div>
+{% endif %}
+{% endif %}
+
 <div class="slides">
 {%- endblock body_header -%}
 

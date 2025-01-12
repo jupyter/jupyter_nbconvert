@@ -78,6 +78,10 @@ class _RevealMetadataPreprocessor(Preprocessor):
         nb.cells[-1].metadata.subslide_end = True
         nb.cells[-1].metadata.slide_end = True
 
+        # Update reveal config values using values from notebook metadata if present
+        if isinstance(resources, dict) and "reveal" in resources:
+            resources["reveal"].update(nb.metadata.get("reveal", {}))
+
         return nb, resources
 
 
@@ -186,6 +190,35 @@ class SlidesExporter(HTMLExporter):
         """,
     ).tag(config=True)
 
+    reveal_overlay = Unicode(
+        "",
+        help="""
+                             Optional text or html overlay.
+                             If this is set then reveal_header, reveal_footer and reveal_backimage are ignored.
+                             """,
+    ).tag(config=True)
+
+    reveal_header = Unicode(
+        "",
+        help="""
+                             Optional header to display above slides.
+                             """,
+    ).tag(config=True)
+
+    reveal_backimage = Unicode(
+        "",
+        help="""
+                             Optional background image to display behind the slides.
+                             """,
+    ).tag(config=True)
+
+    reveal_footer = Unicode(
+        "",
+        help="""
+                             Optional footer to display below slides.
+                             """,
+    ).tag(config=True)
+
     font_awesome_url = Unicode(
         "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css",
         help="""
@@ -206,4 +239,8 @@ class SlidesExporter(HTMLExporter):
         resources["reveal"]["number"] = self.reveal_number
         resources["reveal"]["height"] = self.reveal_height
         resources["reveal"]["width"] = self.reveal_width
+        resources["reveal"]["overlay"] = self.reveal_overlay
+        resources["reveal"]["header"] = self.reveal_header
+        resources["reveal"]["backimage"] = self.reveal_backimage
+        resources["reveal"]["footer"] = self.reveal_footer
         return resources
