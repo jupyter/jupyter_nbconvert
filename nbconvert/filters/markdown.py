@@ -36,7 +36,10 @@ __all__ = [
 ]
 
 
-def markdown2latex(source, markup="markdown", extra_args=None):
+_MARKDOWN_FMT = "markdown+lists_without_preceding_blankline"
+
+
+def markdown2latex(source, markup=_MARKDOWN_FMT, extra_args=None):
     """
     Convert a markdown string to LaTeX via pandoc.
 
@@ -65,7 +68,7 @@ def markdown2html_pandoc(source, extra_args=None):
     Convert a markdown string to HTML via pandoc.
     """
     extra_args = extra_args or ["--mathjax"]
-    return convert_pandoc(source, "markdown", "html", extra_args=extra_args)
+    return convert_pandoc(source, _MARKDOWN_FMT, "html", extra_args=extra_args)
 
 
 def markdown2asciidoc(source, extra_args=None):
@@ -80,7 +83,7 @@ def markdown2asciidoc(source, extra_args=None):
         atx_args = ["--markdown-headings=atx"]
 
     extra_args = extra_args or atx_args
-    asciidoc = convert_pandoc(source, "markdown", "asciidoc", extra_args=extra_args)
+    asciidoc = convert_pandoc(source, _MARKDOWN_FMT, "asciidoc", extra_args=extra_args)
     # workaround for https://github.com/jgm/pandoc/issues/3068
     if "__" in asciidoc:
         asciidoc = re.sub(r"\b__([\w \n-]+)__([:,.\n\)])", r"_\1_\2", asciidoc)
@@ -111,4 +114,4 @@ def markdown2rst(source, extra_args=None):
     out : string
         Output as returned by pandoc.
     """
-    return convert_pandoc(source, "markdown", "rst", extra_args=extra_args)
+    return convert_pandoc(source, _MARKDOWN_FMT, "rst", extra_args=extra_args)
