@@ -138,7 +138,9 @@ if MISTUNE_V3:  # Parsers for Mistune >= 3.0.0
         # Display math mode, using newer LaTeX delimiter: \[ \pi \]
         BLOCK_MATH_LATEX = _dotall(r"(?<!\\)\\\\\[(?P<math_block_latex>.*?)(?<!\\)\\\\\]")
         # Inline math mode, using older TeX delimiter: $ \pi $  (cannot be empty!)
-        INLINE_MATH_TEX = _dotall(r"(?<![$\\])\$(?P<math_inline_tex>.+?)(?<![$\\])\$")
+        INLINE_MATH_TEX = _dotall(
+            r"(?<![$\\])$(?!\s)(?P<math_inline_tex>[^$\\\s]+?)(?<!\s)(?<![$\\])$"
+        )
         # Inline math mode, using newer LaTeX delimiter: \( \pi \)
         INLINE_MATH_LATEX = _dotall(r"(?<!\\)\\\\\((?P<math_inline_latex>.*?)(?<!\\)\\\\\)")
         # LaTeX math environment: \begin{equation} \pi \end{equation}
