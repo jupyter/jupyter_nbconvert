@@ -2,6 +2,12 @@
 {% from 'celltags.j2' import celltags %}
 {% from 'cell_id_anchor.j2' import cell_id_anchor %}
 
+{%- block body_loop -%}
+<div class="jp-Notebook jp-NotebookPanel-notebook" role="list" aria-label="Notebook Cells">
+{{super()}}
+</div>
+{%- endblock body_loop -%}
+
 {% block codecell %}
 {%- if not cell.outputs -%}
 {%- set no_output_class="jp-mod-noOutputs" -%}
@@ -9,7 +15,9 @@
 {%- if not resources.global_content_filter.include_input -%}
 {%- set no_input_class="jp-mod-noInput" -%}
 {%- endif -%}
-<div {{ cell_id_anchor(cell) }} class="jp-Cell jp-CodeCell jp-Notebook-cell {{ no_output_class }} {{ no_input_class }} {{ celltags(cell) }}">
+<div id="{{loop.index}}" role="listitem" class="jp-Cell jp-CodeCell jp-Notebook-cell {{ no_output_class }} {{ no_input_class }} {{ celltags(cell) }}" aria-labelledby="jp-cellNumber-{{loop.index}} jp-cellType-{{loop.index}}">
+<div class="jp-cellType" id="jp-cellType-{{loop.index}}" hidden>Code</div>
+{# the kernel name could also be the label here.  #}
 {{ super() }}
 </div>
 {%- endblock codecell %}
@@ -18,7 +26,7 @@
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputArea jp-Cell-inputArea" role="group" aria-label="cell input">
 {{ super() }}
 </div>
 </div>
@@ -41,18 +49,23 @@
 {% endblock output_group %}
 
 {% block outputs %}
-<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea jp-Cell-outputArea" role="group" aria-label="cell outputs">
 {{ super() }}
 </div>
 {% endblock outputs %}
 
 {% block in_prompt -%}
-<div class="jp-InputPrompt jp-InputArea-prompt">
-    {%- if cell.execution_count is defined -%}
-        In&nbsp;[{{ cell.execution_count|replace(None, "&nbsp;") }}]:
-    {%- else -%}
-        In&nbsp;[&nbsp;]:
-    {%- endif -%}
+<div class="jp-InputPrompt-Group jp-InputPrompt jp-InputArea-prompt">
+    <a href="{{loop.index}}" id="jp-cellNumber-{{loop.index}}" class="jp-CellNumber visually-hidden" aria-describedby="jp-cellType-{{loop.index}} jp-executionCount-{{loop.index}}">Cell {{loop.index}}</a>
+    <span id="jp-executionCount-{{loop.index}}">
+            {%- if cell.execution_count is defined and cell.execution_count != None -%}
+            In<span aria-hidden="true">[</span>{{ cell.execution_count|replace(None, "&nbsp;") }}<span
+                aria-hidden="true">]:</span>
+            {%- else -%}
+            In<span aria-hidden="true">[</span>&nbsp;<span class="visually-hidden">unexecuted</span><span
+                aria-hidden="true">]:</span>
+            {%- endif -%}
+    </span>
 </div>
 {%- endblock in_prompt %}
 
@@ -72,9 +85,9 @@
     <div class="jp-OutputPrompt jp-OutputArea-prompt">
 {%- if output.output_type == 'execute_result' -%}
     {%- if cell.execution_count is defined -%}
-        Out[{{ cell.execution_count|replace(None, "&nbsp;") }}]:
+        Out<span aria-hidden="true">[</span>{{ cell.execution_count|replace(None, "&nbsp;") }}<span aria-hidden="true">]:</span>
     {%- else -%}
-        Out[&nbsp;]:
+        Out<span aria-hidden="true">[</span>&nbsp;<span class="visually-hidden">unexecuted</span><span aria-hidden="true">]:</span>
     {%- endif -%}
 {%- endif -%}
     </div>
@@ -90,12 +103,17 @@
     {{ self.output_area_prompt() }}
 {% endif %}
 {{ super() }}
+{% if not cell.outputs %}
+<span class="visually-hidden">Zero outputs displayed.</span>
+{% endif %}
 </div>
 {% endblock output %}
 
 {% block markdowncell scoped %}
-<div {{ cell_id_anchor(cell) }} class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div id="{{loop.index}}" class="jp-Cell jp-MarkdownCell jp-Notebook-cell" role="listitem" aria-labelledby="jp-cellNumber-{{loop.index}} jp-cellType-{{loop.index}}">
+<div class="jp-cellType" id="jp-cellType-{{loop.index}}" hidden>Markdown</div>
 <div class="jp-Cell-inputWrapper">
+<a href="{{loop.index}}" class="jp-cellNumber visually-hidden" id="jp-cellNumber-{{loop.index}}" aria-describedby="jp-cellType-{{loop.index}}">Cell {{loop.index}}</a>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">

@@ -100,6 +100,30 @@ a.anchor-link {
     display: block;
   }
 }
+
+{# this fails SC 2.4.7 https://www.w3.org/WAI/WCAG21/Understanding/focus-visible.html
+because the focus wont be visible when the cell is active.
+the commented selector would allow visible focus if chosen. #}
+/**.visually-hidden:not(:focus):not(:active),**/
+.visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+:root {
+  --nb-focus-width: 2px;
+}
+
+.jp-Cell:focus-within,
+:focus-visible {
+    outline: max(var(--nb-focus-width), 1px) solid;
+    box-shadow: 0 0 0 calc(2 * max(var(--nb-focus-width), 1px));
+}
 </style>
 
 {% endblock notebook_css %}

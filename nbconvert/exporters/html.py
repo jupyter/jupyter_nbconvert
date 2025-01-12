@@ -151,6 +151,10 @@ class HTMLExporter(TemplateExporter):
         "*", help="Semver range for Jupyter widgets HTML manager"
     ).tag(config=True)
 
+    postprocess_html = Bool(False, help="Add interactive elements and missing alt text.").tag(
+        config=True
+    )
+
     @default("file_extension")
     def _file_extension_default(self):
         return ".html"
@@ -265,7 +269,15 @@ class HTMLExporter(TemplateExporter):
 
         self.register_filter("highlight_code", highlight_code)
         self.register_filter("filter_data_type", filter_data_type)
+
         html, resources = super().from_notebook_node(nb, resources, **kw)
+        if self.postprocess_html:
+            html, resources = self.postprocess(html, resources)
+
+        return html, resources
+
+    def postprocess(self, html, resources):
+        """Use beautifulsoup to make notebooks interactive and replace missing alt text"""
         soup = BeautifulSoup(html, features="html.parser")
         # Add image's alternative text
         missing_alt = 0
