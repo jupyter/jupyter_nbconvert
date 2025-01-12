@@ -151,7 +151,11 @@ class TemplateExporter(Exporter):
     """
 
     # finish the docstring
-    __doc__ = __doc__.format(filters="- " + "\n    - ".join(sorted(default_filters.keys())))
+    __doc__ = (
+        __doc__.format(filters="- " + "\n    - ".join(sorted(default_filters.keys())))
+        if __doc__
+        else None
+    )
 
     _template_cached = None
 
